@@ -1,0 +1,7 @@
+Pillow==12.3.0
+numpy
+opencv-python
+PyMuPDF
+python-pptx
+PyYAML
+ImageHash

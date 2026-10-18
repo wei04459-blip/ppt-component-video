@@ -1,0 +1,99 @@
+templates:
+  09:
+    name: 香槟金奖·护理课件双卡
+    status: ready
+    approval_status: user_confirmed
+    version: '1.0'
+    kind: award_grid
+    output_size:
+    - 2160
+    - 2880
+    render_role: cover
+    header_on_content: true
+    page_capacity: 2
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    background_color: '#E8DCC5'
+    paper_glow:
+      color:
+      - 255
+      - 254
+      - 249
+      center:
+      - 0.18
+      - 0.1
+      strength: 0.96
+    slots:
+    - - 38
+      - 275
+      - 1004
+      - 565
+    - - 38
+      - 867
+      - 1004
+      - 565
+    content_layouts:
+      '2':
+      - - 38
+        - 275
+        - 1004
+        - 565
+      - - 38
+        - 867
+        - 1004
+        - 565
+    card_style:
+      color: '#FFFFFF'
+      inset: 5
+      border_color: '#F9F5EC'
+      border_width: 1
+      shadow_offset:
+      - 0
+      - 6
+      shadow_blur: 8
+    award_label: 金奖案例
+    header:
+      box:
+      - 42
+      - 59
+      - 805
+      - 85
+      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_size: 86
+      color: '#152B49'
+      award_color: '#A66E24'
+      segment_gap: 7
+      finish: metallic
+      tracking: 0.8
+    strapline:
+      text: DMADV手术调度课件
+      box:
+      - 45
+      - 174
+      - 780
+      - 54
+      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_size: 38
+      color: '#4D5D6D'
+      finish: tracked
+      tracking: 2.3
+      lead_line: 33
+    trophy:
+      asset: assets/15-trophy.png
+      enabled: true
+      trim_alpha_threshold: 8
+      box:
+      - 868
+      - 38
+      - 174
+      - 191
+    confirmed_at: '2026-10-12'
+    priority: -100
+    selection_status: backup
+    priority_note: 保留2026-10-12用户确认的备用优先级；版式已正式优化为香槟金奖双卡。
+    reference_note: 用户2026-10-12确认香槟v2；随后澄清只固定金奖案例，前缀依课件主题更改。
+    material_type: 原生renderer与字形遮罩渐变，复用透明奖杯15-trophy.png
+    usage: 标题前缀按真实PPT主题参数化，固定后缀金奖案例；前缀深海军蓝，后缀金属金色，自动缩字避奖杯。
+    default_prefix: 护理PPT
+    fixed_award_label: 金奖案例

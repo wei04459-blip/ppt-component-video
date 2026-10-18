@@ -8,3 +8,10 @@ outputs/
 *.log
 .env
 .env.*
+
+node_modules/
+.browser-ready
+.pytest_cache/
+*.egg-info/
+video/input.json
+video/output/

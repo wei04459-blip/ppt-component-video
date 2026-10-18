@@ -1,0 +1,1265 @@
+schema_version: 1
+templates:
+  '06':
+    name: 黑色支架屏幕书本
+    priority: -100
+    selection_status: backup
+    priority_note: 2026-10-13用户要求将10月11日发布的06、07、10全部降为备用；覆盖07此前继续测试状态，保留可调用。
+    status: ready
+    kind: scene
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/6846afc90000000022027d2f
+    reference_note: 上方保留墙面，中部为大屏，下方黑色支架与展开书本；整体浅灰色调。
+    material_type: 原帖参考背景
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    content_default_capacity: 1
+    content_allowed_capacities:
+    - 1
+    scene_viewport:
+    - 0
+    - 0
+    - 1080
+    - 1440
+    canvas_color: '#F3F2EF'
+    page_capacity: 1
+    scene_overlays:
+    - role: title
+      position:
+      - 34
+      - 65
+      size:
+      - 1012
+      - 140
+      angle: 1
+      font_name: 得意黑
+      font_size: 91
+      color: '#FFFFFF'
+      background: null
+      radius: 14
+      stroke_width: 5
+      max_lines: 1
+      align: center
+      padding: 16
+      shadow: false
+      stroke_fill: '#182632'
+    - role: subtitle
+      text: 真实课件 · 框架展示
+      position:
+      - 111
+      - 243
+      size:
+      - 856
+      - 70
+      angle: -1
+      font_name: 黑体粗
+      font_size: 42
+      color: '#F4E845'
+      background: null
+      radius: 8
+      max_lines: 1
+      align: center
+      padding: 12
+      shadow: false
+      stroke_width: 2
+      stroke_fill: '#1B2934'
+    background: assets/06.jpg
+    corners:
+    - - 0
+      - 397
+    - - 1079
+      - 449
+    - - 1079
+      - 1064
+    - - 0
+      - 1105
+    geometry_note: 按可见屏幕上、下边缘及照片左右边界标定显示区域，四边覆盖原画面；不补造出画的边框。
+  '07':
+    name: 标题＋非对称多页拼图
+    priority: -100
+    selection_status: backup
+    priority_note: 2026-10-13用户要求将10月11日发布的06、07、10全部降为备用；覆盖07此前继续测试状态，保留可调用。
+    status: ready
+    kind: collage
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/69983aa9000000001a01e081
+    reference_note: 顶部标题和卖点条；左侧5张小页自由选页，右侧3张大页从上到下固定为原始PPT第1、2、3页，第1页必须在右上主位。
+    cover_fixed_pages:
+      5: 1
+      6: 2
+      7: 3
+    material_type: 代码排版
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    header:
+      box:
+      - 32
+      - 20
+      - 1016
+      - 133
+      font_name: 文楷粗
+      font_size: 105
+      color: '#171719'
+      stroke_width: 1
+      stroke_fill: '#171719'
+      max_lines: 1
+      vertical_align: center
+      highlights:
+      - text: 烧伤
+        color: '#C91513'
+    background_color: '#F7F7F4'
+    card_color: '#FFFFFF'
+    radius: 0
+    shadow: true
+    slots:
+    - - 28
+      - 235
+      - 368
+      - 215
+    - - 28
+      - 465
+      - 368
+      - 215
+    - - 28
+      - 695
+      - 368
+      - 215
+    - - 28
+      - 925
+      - 368
+      - 215
+    - - 28
+      - 1155
+      - 368
+      - 215
+    - - 422
+      - 235
+      - 630
+      - 370
+    - - 422
+      - 622
+      - 630
+      - 370
+    - - 422
+      - 1009
+      - 630
+      - 370
+    page_capacity: 8
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    content_layouts:
+      '2':
+      - - 28
+        - 235
+        - 1024
+        - 550
+      - - 28
+        - 819
+        - 1024
+        - 550
+      '3':
+      - - 32
+        - 180
+        - 1016
+        - 393
+      - - 32
+        - 595
+        - 1016
+        - 393
+      - - 32
+        - 1010
+        - 1016
+        - 393
+    decorations:
+    - box:
+      - 32
+      - 143
+      - 1016
+      - 5
+      fill: '#287489'
+      radius: 0
+    strapline:
+      text: 选题思路  /  四维评估  /  全程闭环
+      box:
+      - 32
+      - 169
+      - 1016
+      - 44
+      font_size: 34
+      color: '#293C48'
+      font_name: 黑体粗
+  08:
+    name: 标题＋上下双页卡片
+    status: ready
+    kind: collage
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/69ea0786000000002301c7e7
+    reference_note: 顶部标题与卖点说明；中间一张大的封面页，下方一张内容页，圆角卡片和浅灰底统一画面。
+    material_type: 代码排版
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    header:
+      box:
+      - 55
+      - 31
+      - 960
+      - 116
+      font_name: 黑体粗
+      font_size: 84
+      color: '#FFFFFF'
+      max_lines: 1
+      vertical_align: center
+      highlights:
+      - text: 烧伤护理
+        color: '#FFF51F'
+    background_color: '#EDEFF1'
+    card_color: '#FFFFFF'
+    radius: 35
+    shadow: true
+    slots: &id001
+    - - 32
+      - 244
+      - 1016
+      - 558
+    - - 32
+      - 834
+      - 1016
+      - 558
+    page_capacity: 2
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    content_layouts:
+      '2': *id001
+      '3':
+      - - 32
+        - 180
+        - 1016
+        - 393
+      - - 32
+        - 595
+        - 1016
+        - 393
+      - - 32
+        - 1010
+        - 1016
+        - 393
+    decorations:
+    - box:
+      - 28
+      - 24
+      - 1024
+      - 136
+      fill: '#2867AE'
+      radius: 64
+    strapline:
+      text: 框架有依据  |  评估有维度  |  干预有闭环
+      box:
+      - 32
+      - 170
+      - 1016
+      - 52
+      font_size: 37
+      color: '#275E91'
+      font_name: 文楷粗
+      max_lines: 1
+      vertical_align: center
+  09:
+    name: 香槟金奖·护理课件双卡
+    status: ready
+    approval_status: user_confirmed
+    version: '1.0'
+    kind: award_grid
+    output_size:
+    - 2160
+    - 2880
+    render_role: cover
+    header_on_content: true
+    page_capacity: 2
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    background_color: '#E8DCC5'
+    paper_glow:
+      color:
+      - 255
+      - 254
+      - 249
+      center:
+      - 0.18
+      - 0.1
+      strength: 0.96
+    slots:
+    - - 38
+      - 275
+      - 1004
+      - 565
+    - - 38
+      - 867
+      - 1004
+      - 565
+    content_layouts:
+      '2':
+      - - 38
+        - 275
+        - 1004
+        - 565
+      - - 38
+        - 867
+        - 1004
+        - 565
+    card_style:
+      color: '#FFFFFF'
+      inset: 5
+      border_color: '#F9F5EC'
+      border_width: 1
+      shadow_offset:
+      - 0
+      - 6
+      shadow_blur: 8
+    award_label: 金奖案例
+    header:
+      box:
+      - 42
+      - 59
+      - 805
+      - 85
+      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_size: 86
+      color: '#152B49'
+      award_color: '#A66E24'
+      segment_gap: 7
+      finish: metallic
+      tracking: 0.8
+    strapline:
+      text: DMADV手术调度课件
+      box:
+      - 45
+      - 174
+      - 780
+      - 54
+      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_size: 38
+      color: '#4D5D6D'
+      finish: tracked
+      tracking: 2.3
+      lead_line: 33
+    trophy:
+      asset: assets/15-trophy.png
+      enabled: true
+      trim_alpha_threshold: 8
+      box:
+      - 868
+      - 38
+      - 174
+      - 191
+    confirmed_at: '2026-10-12'
+    priority: 100
+    selection_status: preferred
+    priority_note: 2026-10-14用户要求提高10月13日发布款优先级；已核实安安护理PPT当日09、10、11三款封面映射。依据用户指示，无效果因果判断。
+    reference_note: 用户2026-10-12确认香槟v2；随后澄清只固定金奖案例，前缀依课件主题更改。
+    material_type: 原生renderer与字形遮罩渐变，复用透明奖杯15-trophy.png
+    usage: 标题前缀按真实PPT主题参数化，固定后缀金奖案例；前缀深海军蓝，后缀金属金色，自动缩字避奖杯。
+    default_prefix: 护理PPT
+    fixed_award_label: 金奖案例
+  '10':
+    name: 报告厅投影大屏
+    priority: 100
+    selection_status: preferred
+    priority_note: 2026-10-14用户要求提高10月13日发布款优先级；已核实安安护理PPT当日09、10、11三款封面映射。依据用户指示，无效果因果判断。
+    status: ready
+    kind: scene
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/6a8cfdda00000000f03d9af3
+    reference_note: 真实报告厅内的大屏为主体，周围木饰面和天花保留环境，底部讲台、课桌与背影带出现场感。
+    material_type: 原帖参考背景
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    background: assets/10-clean.jpg
+    corners:
+    - - 60
+      - 353
+    - - 1010
+      - 434
+    - - 1010
+      - 989
+    - - 57
+      - 1026
+    content_default_capacity: 1
+    content_allowed_capacities:
+    - 1
+    cleanup: 裁掉场景外围截图圆角与底部平台翻页栏，保留完整屏幕
+    scene_overlays:
+    - role: title
+      position:
+      - 38
+      - 30
+      size:
+      - 996
+      - 132
+      angle: 2
+      font_name: 得意黑
+      font_size: 88
+      color: '#FFFFFF'
+      stroke_width: 5
+      stroke_fill: '#182632'
+      max_lines: 2
+      align: center
+      background: null
+      padding: 12
+      shadow: false
+    - role: subtitle
+      text: 真实课件 · 框架展示
+      position:
+      - 105
+      - 204
+      size:
+      - 870
+      - 76
+      angle: 2
+      font_name: 黑体粗
+      font_size: 40
+      color: '#F4E845'
+      stroke_width: 2
+      stroke_fill: '#1B2934'
+      max_lines: 1
+      align: center
+      background: null
+      radius: 10
+      padding: 12
+      shadow: false
+  '11':
+    name: 报告厅舞台大屏 · 优化版
+    priority: 100
+    selection_status: preferred
+    priority_note: 2026-10-14用户要求提高10月13日发布款优先级；已核实安安护理PPT当日09、10、11三款封面映射。依据用户指示，无效果因果判断。
+    status: ready
+    kind: scene
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/6a0c291a00000000380218c7
+    reference_note: 减少天花板空白，拉近并校正屏幕视角；整理舞台细节、平衡光线，保留讲解人与少量观众的现场感。
+    material_type: AI编辑背景
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    background: assets/11.jpg
+    corners:
+    - - 65
+      - 257
+    - - 1045
+      - 249
+    - - 1053
+      - 902
+    - - 73
+      - 902
+    foreground_polygons:
+    - - - 44
+        - 791
+      - - 83
+        - 795
+      - - 108
+        - 851
+      - - 112
+        - 886
+      - - 94
+        - 927
+      - - 100
+        - 989
+      - - 86
+        - 1063
+      - - 87
+        - 1075
+      - - 32
+        - 1075
+      - - 30
+        - 995
+      - - 20
+        - 936
+      - - 22
+        - 880
+      - - 28
+        - 829
+    content_default_capacity: 1
+    content_allowed_capacities:
+    - 1
+    scene_overlays:
+    - role: title
+      position:
+      - 24
+      - 30
+      size:
+      - 1032
+      - 132
+      angle: 0
+      font_name: 得意黑
+      font_size: 105
+      color: '#FFFFFF'
+      stroke_width: 5
+      stroke_fill: '#182632'
+      max_lines: 1
+      align: center
+      background: null
+      padding: 4
+      radius: 14
+      shadow: false
+    - role: subtitle
+      text: 真实课件 · 框架展示
+      position:
+      - 48
+      - 179
+      size:
+      - 984
+      - 62
+      angle: -1
+      font_name: 黑体粗
+      font_size: 49
+      color: '#F4E845'
+      stroke_width: 2
+      stroke_fill: '#1B2934'
+      max_lines: 1
+      align: center
+      background: null
+      radius: 10
+      padding: 3
+      shadow: false
+  '12':
+    name: 标题＋八页网格拼图
+    status: ready
+    kind: collage
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/69c3d904000000001a0356f9
+    reference_note: 浅色底上用大标题承接选题，品类关键词以不同颜色强调；下方八张PPT按两列四行整齐排列，间距和投影统一。
+    material_type: 代码排版
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    header:
+      box:
+      - 32
+      - 24
+      - 1016
+      - 126
+      font_name: 黑体粗
+      font_size: 98
+      color: '#087C76'
+      max_lines: 1
+      vertical_align: center
+      highlights:
+      - text: 护理
+        color: '#C82020'
+    background_color: '#F3F5F3'
+    card_color: '#FFFFFF'
+    radius: 0
+    shadow: true
+    slots:
+    - - 30
+      - 244
+      - 500
+      - 270
+    - - 550
+      - 244
+      - 500
+      - 270
+    - - 30
+      - 531
+      - 500
+      - 270
+    - - 550
+      - 531
+      - 500
+      - 270
+    - - 30
+      - 818
+      - 500
+      - 270
+    - - 550
+      - 818
+      - 500
+      - 270
+    - - 30
+      - 1105
+      - 500
+      - 270
+    - - 550
+      - 1105
+      - 500
+      - 270
+    page_capacity: 8
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    content_layouts:
+      '2':
+      - - 30
+        - 244
+        - 1020
+        - 550
+      - - 30
+        - 833
+        - 1020
+        - 550
+      '3':
+      - - 32
+        - 180
+        - 1016
+        - 393
+      - - 32
+        - 595
+        - 1016
+        - 393
+      - - 32
+        - 1010
+        - 1016
+        - 393
+    strapline:
+      text: 四维评估  ·  循证依据  ·  全程闭环
+      box:
+      - 32
+      - 166
+      - 1016
+      - 48
+      font_name: 黑体粗
+      font_size: 36
+      color: '#087C76'
+      max_lines: 1
+      vertical_align: center
+    decorations:
+    - box:
+      - 32
+      - 220
+      - 1016
+      - 3
+      fill: '#A9C6BE'
+      radius: 0
+  '13':
+    name: 讲台＋投影大屏
+    status: ready
+    kind: scene
+    output_size:
+    - 1080
+    - 1440
+    reference_source: https://www.xiaohongshu.com/explore/6a6ab7ab00000000110189cd
+    reference_note: 投影屏幕位于画面上半部，木质讲台立在左下，近景观众与座椅位于右下；白色吊顶和浅色墙面带出小型报告厅环境。
+    material_type: 原帖参考背景
+    usage: 本地样稿模板；参考素材不代表取得商业再使用授权
+    background: assets/13-clean.jpg
+    corners:
+    - - 37
+      - 168
+    - - 915
+      - 216
+    - - 914
+      - 752
+    - - 40
+      - 760
+    content_default_capacity: 1
+    content_allowed_capacities:
+    - 1
+    cleanup: 从场景四周裁去浏览器截图圆角和底部翻页圆点；保留完整屏幕，不补画
+    canvas_color: '#F3F2EF'
+    scene_viewport:
+    - 0
+    - 0
+    - 1080
+    - 1440
+    scene_overlays:
+    - role: title
+      position:
+      - 24
+      - 42
+      size:
+      - 1032
+      - 104
+      angle: 0
+      font_name: 得意黑
+      font_size: 98
+      color: '#FFFFFF'
+      stroke_width: 5
+      stroke_fill: '#182632'
+      max_lines: 1
+      align: center
+      background: null
+      padding: 4
+      radius: 12
+      shadow: false
+    - role: subtitle
+      text: 真实课件 · 框架展示
+      position:
+      - 65
+      - 153
+      size:
+      - 950
+      - 47
+      angle: 0
+      font_name: 黑体粗
+      font_size: 45
+      color: '#F4E845'
+      stroke_width: 2
+      stroke_fill: '#1B2934'
+      max_lines: 1
+      align: center
+      background: null
+      radius: 7
+      padding: 2
+      shadow: false
+  '14':
+    name: 护理小讲课·蓝黑柔焦双卡片
+    status: ready
+    approval_status: user_confirmed
+    confirmed_at: '2026-10-11'
+    version: '1.0'
+    kind: nursing_dual
+    output_size:
+    - 2160
+    - 2880
+    reference_source: 用户提供的护理小讲课参考截图（2026-10-11）
+    reference_note: 仅取原图上方3:4海报；蓝色至黑橄榄柔焦底，巨大倾斜白字黑描边、黄色斜主题、上下两张近16:9圆角卡片与右侧弯箭头；不含播放图标或平台UI。
+    material_type: 原生代码排版与程序化背景
+    usage: 通用视觉资产无参考课件截图或院校Logo；替换页须来自真实源PPT。
+    coordinate_system: 1080×1440设计坐标，按输出尺寸原生绘制
+    page_capacity: 2
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    slots:
+    - - 60
+      - 245
+      - 960
+      - 542
+    - - 28
+      - 821
+      - 1024
+      - 576
+    card_style:
+      color: '#FFFFFF'
+      radius: 18
+      inset: 7
+    soft_background:
+      base:
+      - 21
+      - 25
+      - 17
+      glows:
+      - center:
+        - 0.57
+        - 0.08
+        spread:
+        - 0.8
+        - 0.23
+        color:
+        - 140
+        - 180
+        - 216
+        strength: 1.0
+      - center:
+        - 0.95
+        - 0.28
+        spread:
+        - 0.21
+        - 0.12
+        color:
+        - 165
+        - 188
+        - 192
+        strength: 0.88
+      - center:
+        - 0.0
+        - 0.74
+        spread:
+        - 0.2
+        - 0.25
+        color:
+        - 89
+        - 87
+        - 50
+        strength: 0.45
+      - center:
+        - 0.8
+        - 0.83
+        spread:
+        - 0.25
+        - 0.28
+        color:
+        - 33
+        - 38
+        - 22
+        strength: 0.4
+    header:
+      box:
+      - 18
+      - 30
+      - 1044
+      - 122
+      font_name: 黑体粗
+      font_size: 137
+      color: '#FFFFFF'
+      stroke_width: 3.5
+      stroke_fill: '#242A2D'
+      shear: 0.13
+      angle: 0
+      fill_width: true
+      align: center
+      shadow_color: '#273440'
+      shadow_offset:
+      - 4
+      - 7
+    strapline:
+      text: '#替换为真实课件主题'
+      box:
+      - 346
+      - 172
+      - 700
+      - 43
+      font_name: 黑体粗
+      font_size: 52
+      color: '#FFD74D'
+      stroke_width: 1
+      stroke_fill: '#C4A347'
+      shear: 0.1
+      angle: 2.2
+      fill_width: false
+      align: right
+      shadow_color: '#62643D'
+      shadow_offset:
+      - 1
+      - 2
+    arrow:
+      enabled: true
+      box:
+      - 775
+      - 681
+      - 248
+      - 235
+      color: '#FFD64E'
+      protect_slides: false
+    content_options:
+      arrow:
+        enabled: false
+      slots:
+      - - 38
+        - 245
+        - 980
+        - 558
+      - - 38
+        - 830
+        - 980
+        - 558
+    content_variants:
+    - wide_top
+    layout_variants:
+      wide_top:
+        slots:
+        - - 38
+          - 245
+          - 980
+          - 558
+        - - 38
+          - 830
+          - 980
+          - 558
+        arrow:
+          box:
+          - 775
+          - 681
+          - 248
+          - 235
+          protect_slides: false
+      inset_top:
+        slots:
+        - - 38
+          - 245
+          - 980
+          - 558
+        - - 38
+          - 830
+          - 980
+          - 558
+        arrow:
+          box:
+          - 775
+          - 681
+          - 248
+          - 235
+          protect_slides: false
+  '15':
+    name: 奖杯标题·左三大右六小拼图
+    status: ready
+    approval_status: user_confirmed
+    created_at: '2026-10-11'
+    confirmed_at: '2026-10-11'
+    version: '1.0'
+    kind: award_grid
+    output_size:
+    - 2160
+    - 2880
+    reference_note: 用户两张参考；封面奖杯九拼，内容页固定三拼。只复刻实际3:4海报区域，不含平台UI、页码与账号。
+    material_type: 原生排版＋built-in imagegen重建的透明奖杯
+    usage: 获奖身份来自用户声明；具体奖项等级按真实课件设置，不展示比赛名称。
+    render_role: cover
+    page_capacity: 9
+    cover_fixed_pages:
+      0: 1
+    content_default_capacity: 3
+    content_allowed_capacities:
+    - 3
+    background_color: '#F2F2F2'
+    slots:
+    - - 35
+      - 226
+      - 670
+      - 377
+    - - 35
+      - 617
+      - 670
+      - 377
+    - - 35
+      - 1008
+      - 670
+      - 377
+    - - 724
+      - 226
+      - 320
+      - 180
+    - - 724
+      - 422
+      - 320
+      - 180
+    - - 724
+      - 617
+      - 320
+      - 180
+    - - 724
+      - 813
+      - 320
+      - 180
+    - - 724
+      - 1008
+      - 320
+      - 180
+    - - 724
+      - 1205
+      - 320
+      - 180
+    content_layouts:
+      '3':
+      - - 150
+        - 22
+        - 810
+        - 456
+      - - 150
+        - 491
+        - 810
+        - 456
+      - - 150
+        - 960
+        - 810
+        - 456
+    card_style:
+      color: '#FFFFFF'
+      inset: 2
+      border_color: '#3F4E83'
+      border_width: 1.2
+      shadow_offset:
+      - 3
+      - 4
+      shadow_blur: 2
+    award_label: 获奖PPT
+    header:
+      box:
+      - 35
+      - 34
+      - 795
+      - 93
+      font_path: /System/Library/Fonts/Supplemental/Songti.ttc
+      font_index: 0
+      font_size: 78
+      color: '#14246C'
+      award_color: '#DF853E'
+      segment_gap: 8
+    strapline:
+      text: 项目背景—现状评估—护理支持—持续随访
+      box:
+      - 35
+      - 143
+      - 800
+      - 62
+      font_path: /System/Library/Fonts/Supplemental/Songti.ttc
+      font_index: 1
+      font_size: 40
+      color: '#14246C'
+    trophy:
+      asset: assets/15-trophy.png
+      enabled: true
+      trim_alpha_threshold: 8
+      box:
+      - 834
+      - 17
+      - 211
+      - 210
+      source: built-in imagegen；依据参考右上奖杯提取重建，去除1/4覆盖，透明背景，无文字。
+  '16':
+    name: 获奖标签·一大四小与双页
+    status: ready
+    approval_status: user_confirmed
+    created_at: '2026-10-11'
+    confirmed_at: '2026-10-11'
+    version: '1.0'
+    kind: award_grid
+    output_size:
+    - 2160
+    - 2880
+    reference_note: 用户1/8封面与2/8内容参考；仅实际3:4海报，黄底红宋奖项标签、小金杯、黑蓝宋主题、灰色信息行；封面一大四小、内容固定双大页。
+    material_type: 原生排版＋透明小奖杯
+    usage: 奖项身份来自用户声明，具体层级按真实课件设置；信息行只显示真实源PPT页数，居中。
+    render_role: cover
+    header_on_content: true
+    page_capacity: 5
+    cover_fixed_pages:
+      0: 1
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    background_color: '#F4F6FD'
+    slots:
+    - - 50
+      - 232
+      - 982
+      - 553
+    - - 50
+      - 820
+      - 485
+      - 273
+    - - 546
+      - 820
+      - 485
+      - 273
+    - - 50
+      - 1122
+      - 485
+      - 273
+    - - 546
+      - 1122
+      - 485
+      - 273
+    content_layouts:
+      '2':
+      - - 46
+        - 205
+        - 992
+        - 558
+      - - 46
+        - 803
+        - 992
+        - 558
+    card_style:
+      color: '#FFFFFF'
+      inset: 0
+      border_color: '#FFFFFF'
+      border_width: 0.5
+      shadow_offset:
+      - 4
+      - 4
+      shadow_blur: 2
+    award_label: 获奖课件
+    header:
+      mode: award_label
+      box:
+      - 410
+      - 94
+      - 620
+      - 60
+      label_box:
+      - 103
+      - 88
+      - 225
+      - 67
+      label_padding: 1
+      label_fill: '#FFFF00'
+      label_color: '#E9535F'
+      label_font_size: 58
+      font_path: /System/Library/Fonts/Supplemental/Songti.ttc
+      font_index: 1
+      font_size: 58
+      color: '#070B11'
+      highlights:
+      - text: 护理专题
+        color: '#09284D'
+    info_line:
+      template: 页数：{page_count}页
+      text: 页数：15页
+      box:
+      - 0
+      - 174
+      - 1080
+      - 38
+      align: center
+      font_path: /System/Library/Fonts/Supplemental/Arial Unicode.ttf
+      font_index: 0
+      font_size: 32
+      color: '#8E9194'
+    trophy:
+      asset: assets/16-trophy.png
+      enabled: true
+      trim_alpha_threshold: 8
+      box:
+      - 330
+      - 88
+      - 56
+      - 62
+    content_options:
+      header:
+        box:
+        - 410
+        - 72
+        - 620
+        - 60
+        label_box:
+        - 103
+        - 66
+        - 225
+        - 67
+      info_line:
+        box:
+        - 0
+        - 152
+        - 1080
+        - 38
+      trophy:
+        box:
+        - 330
+        - 66
+        - 56
+        - 62
+  '17':
+    name: 蓝色标题带·七拼封面与双页
+    status: ready
+    approval_status: pending_user_review
+    created_at: '2026-10-13'
+    version: '0.1'
+    kind: blue_band
+    output_size:
+    - 2160
+    - 2880
+    reference_note: 用户封面及2/5内容截图；只复刻3:4海报，蓝底白粗斜字单行、四个细白描边标签。封面一大五小一中大，内容两张齐边整页。无平台UI。
+    material_type: 原生可参数化renderer，真实PPT整页等比置入
+    usage: 15页5E/QCC CT等候课件换内容样稿；用户声明课件获奖，未升格金奖。保留源占位文字与待验证信息。
+    coordinate_system: 1080×1440设计坐标，按输出尺寸原生绘制
+    page_capacity: 7
+    cover_fixed_pages:
+      0: 1
+    content_default_capacity: 2
+    content_allowed_capacities:
+    - 2
+    background_color: '#E8ECF2'
+    background_blocks:
+    - points:
+      - - 0
+        - 217
+      - - 680
+        - 217
+      - - 0
+        - 850
+      color: '#ECEEF3'
+    - points:
+      - - 0
+        - 1000
+      - - 1080
+        - 700
+      - - 1080
+        - 1440
+      color: '#E3E8F0'
+    title_band:
+      height: 217
+      color: '#5182B8'
+    header:
+      box:
+      - 24
+      - 24
+      - 1032
+      - 83
+      font_path: ../fonts/SmileySans-Oblique.ttf
+      font_size: 86
+      color: '#FFFFFF'
+      stroke_width: 1
+      fill_width: true
+    tags:
+      labels:
+      - 逻辑框架
+      - 获奖案例
+      - 自由编辑
+      - 源文件
+      boxes:
+      - - 108
+        - 132
+        - 170
+        - 57
+      - - 338
+        - 132
+        - 170
+        - 57
+      - - 570
+        - 132
+        - 170
+        - 57
+      - - 792
+        - 132
+        - 170
+        - 57
+      font_path: ../fonts/NotoSansCJKsc-Regular.otf
+      font_size: 32
+      color: '#EDF2F7'
+      border_width: 1.6
+      radius: 9
+    slots:
+    - - 20
+      - 235
+      - 1040
+      - 585
+    - - 20
+      - 838
+      - 330
+      - 186
+    - - 376
+      - 838
+      - 330
+      - 186
+    - - 732
+      - 838
+      - 330
+      - 186
+    - - 20
+      - 1043
+      - 330
+      - 186
+    - - 20
+      - 1246
+      - 330
+      - 186
+    - - 376
+      - 1043
+      - 684
+      - 385
+    content_layouts:
+      '2':
+      - - 20
+        - 235
+        - 1040
+        - 585
+      - - 20
+        - 838
+        - 1040
+        - 585
+    card_style:
+      color: '#FFFFFF'
+      inset: 0
+      border_color: '#FFFFFF'
+      border_width: 0
+      shadow_offset:
+      - 4
+      - 5
+      shadow_blur: 2

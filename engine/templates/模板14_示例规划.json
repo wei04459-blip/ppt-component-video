@@ -1,0 +1,83 @@
+{
+  "title_limit": 20,
+  "notes": [
+    {
+      "id": "14",
+      "template_id": "14",
+      "title": "痤疮护理PPT｜RCA与奥瑞姆",
+      "display_title": "护理—专题汇报PPT",
+      "subtitle": "#RCA＋奥瑞姆痤疮护理",
+      "cover_pages": [
+        1,
+        9
+      ],
+      "content_groups": [
+        [
+          2,
+          3
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          12,
+          13
+        ]
+      ],
+      "content_display_titles": [
+        "护理—背景与现状",
+        "护理—理论与分层",
+        "护理—训练与随访"
+      ],
+      "content_subtitles": [
+        "#项目背景与现状问题",
+        "#自理需求与分层护理",
+        "#技能训练与持续随访"
+      ],
+      "content_variants": [
+        "wide_top",
+        "wide_top",
+        "wide_top"
+      ],
+      "body": "真实课件换内容样稿：依次展示项目背景与现状、奥瑞姆理论与分层支持、技能训练与个体化随访。课件中的候选原因和评价计划保持原文，未将其改写为已验证临床结果。",
+      "topics": [
+        "护理PPT",
+        "痤疮护理PPT",
+        "RCA根因分析",
+        "奥瑞姆自理模式"
+      ],
+      "template_options": {
+        "arrow": {
+          "box": [
+            775,
+            681,
+            248,
+            235
+          ],
+          "protect_slides": false,
+          "enabled": true
+        }
+      },
+      "content_options": {
+        "arrow": {
+          "enabled": false
+        },
+        "slots": [
+          [
+            38,
+            245,
+            980,
+            558
+          ],
+          [
+            38,
+            830,
+            980,
+            558
+          ]
+        ]
+      }
+    }
+  ]
+}

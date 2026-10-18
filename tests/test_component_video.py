@@ -3,10 +3,8 @@ from pathlib import Path
 from PIL import Image,ImageChops
 from pptx import Presentation
 from pptx.util import Inches
-import sys
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-import video_runtime as app
-app.DATA=Path(tempfile.mkdtemp(prefix="video-tests-"))
+import test_core
+app=test_core.app
 import component_video as cv
 
 class ComponentTests(unittest.TestCase):

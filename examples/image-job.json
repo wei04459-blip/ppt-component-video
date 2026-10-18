@@ -1,0 +1,6 @@
+{
+  "job_schema_version": 1,
+  "inputs": ["../work/image-fixtures/rgb.png", "../work/image-fixtures/rgba.png", "../work/image-fixtures/orientation6.jpg"],
+  "output_dir": "../work/image-output",
+  "config": {"profile": "legacy_compatible", "seed": "18446744073709551615", "effects": {"metadata": {"enabled": true}}, "io": {"write_source_processed": false, "preview_disk_side_effects": false}}
+}
