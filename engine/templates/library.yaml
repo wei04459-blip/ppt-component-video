@@ -10,7 +10,7 @@ templates:
     output_size:
     - 1080
     - 1440
-    reference_source: https://www.xiaohongshu.com/explore/6846afc90000000022027d2f
+    reference_source: https://www.xiaohongshu.com/explore/6846afc90000000022027d2f?xsec_token=ABwW62Qtm5grfsti1iZueMWiux01L-njKuSfmw-1RkLr4=&xsec_source=pc_search&source=web_search_result_notes
     reference_note: 上方保留墙面，中部为大屏，下方黑色支架与展开书本；整体浅灰色调。
     material_type: 原帖参考背景
     usage: 本地样稿模板；参考素材不代表取得商业再使用授权
@@ -328,7 +328,7 @@ templates:
       - 59
       - 805
       - 85
-      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_path: /Users/yuwan/Documents/New project/xhs-ppt-engine/fonts/NotoSansCJKsc-Bold.otf
       font_size: 86
       color: '#152B49'
       award_color: '#A66E24'
@@ -342,7 +342,7 @@ templates:
       - 174
       - 780
       - 54
-      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_path: /Users/yuwan/Documents/New project/xhs-ppt-engine/fonts/NotoSansCJKsc-Bold.otf
       font_size: 38
       color: '#4D5D6D'
       finish: tracked
@@ -1182,7 +1182,7 @@ templates:
       - 24
       - 1032
       - 83
-      font_path: ../fonts/SmileySans-Oblique.ttf
+      font_path: /Users/yuwan/Documents/New project/xhs-ppt-engine/fonts/SmileySans-Oblique.ttf
       font_size: 86
       color: '#FFFFFF'
       stroke_width: 1
@@ -1210,7 +1210,7 @@ templates:
         - 132
         - 170
         - 57
-      font_path: ../fonts/NotoSansCJKsc-Regular.otf
+      font_path: /Users/yuwan/Documents/New project/xhs-ppt-engine/fonts/NotoSansCJKsc-Regular.otf
       font_size: 32
       color: '#EDF2F7'
       border_width: 1.6

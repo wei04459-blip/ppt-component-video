@@ -17,9 +17,11 @@ DATA = Path(os.environ.get('TOOLBOX_DATA', str(Path.home() / 'Documents' / '鱼�
 DATA.mkdir(parents=True, exist_ok=True)
 import image_editor
 import component_video
+from video_delivery import build_video_bundle
 import image_service
 from image_dedup import core as image_core
 JOBS = {}; LOCK = threading.RLock(); POOL = ThreadPoolExecutor(max_workers=1)
+COMPONENT_REVIEWS = {}
 REGISTRY, TEMPLATE_ROOT = load_templates()
 
 
@@ -78,13 +80,14 @@ def import_files(job, payload, p):
     files=payload.get('files', [])
     if not files: raise ValueError('请选择 PPT、PDF 或图片')
     dest=p/'imports'/job['id'];dest.mkdir(parents=True)
-    pages=dest/'pages';pages.mkdir(); count=0;objects={}
+    pages=dest/'pages';pages.mkdir(); count=0;objects={};input_records=[]
     for f in files:
         if job['cancel']: raise ValueError('任务已取消')
         name=Path(f['name']).name
         suffix=Path(name).suffix.lower()
         if suffix not in ['.pptx','.ppt','.pdf','.png','.jpg','.jpeg','.webp']: raise ValueError('不支持的文件类型：'+name)
         src=dest/(uuid.uuid4().hex+suffix);src.write_bytes(base64.b64decode(f['data'],validate=True))
+        input_sha=hashlib.sha256(src.read_bytes()).hexdigest();first_page=count+1
         if suffix=='.pptx':
             try: objects.update({str(count+i+1):v for i,v in enumerate(component_video.object_pages(src))})
             except Exception: pass
@@ -106,8 +109,9 @@ def import_files(job, payload, p):
         else:
             count+=1
             with Image.open(src) as im: im.convert('RGB').save(pages/f'page_{count:03d}.png')
+        input_records.append(dict(name=name,sha256=input_sha,firstPage=first_page,lastPage=count))
     write_json(dest/'objects.json',objects)
-    state=read_project(p.name);state['pages']=[file_url(x) for x in sorted(pages.glob('*.png'))];state['pages_dir']=str(pages);state['sources']=[f['name'] for f in files]
+    state=read_project(p.name);state['pages']=[file_url(x) for x in sorted(pages.glob('*.png'))];state['pages_dir']=str(pages);state['sources']=[f['name'] for f in files];state['imported_inputs']=input_records
     state['updated']=time.time();write_json(p/'project.json',state)
     return {'pages':count}
 
@@ -222,10 +226,48 @@ def clean_note_metadata(out):
     return count
 
 
+def component_review_key(p,video):
+    # Bind actual visual inputs and order, excluding confirmation/editor-only state.
+    pages=[];sources=[]
+    for page in video.get('pages',[]):
+        value={k:copy.deepcopy(page[k]) for k in ('source','number','components','scene','design') if k in page}
+        pages.append(value)
+        path=(DATA/page['source'][len('/files/'):]).resolve()
+        if not path.is_relative_to(p.resolve()):raise ValueError('源图片路径无效')
+        sources.append(hashlib.sha256(path.read_bytes()).hexdigest())
+    import semantic_scene
+    record=dict(motion=video.get('motion'),pages=pages,sources=sources,renderer=semantic_scene.renderer_fingerprint(ROOT))
+    return hashlib.sha256(json.dumps(record,ensure_ascii=False,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+
+
+def preview_components(payload):
+    p=project(payload['project']);video=payload['video']
+    component_video.validate(sys.modules[__name__],p,video,False)
+    key=component_review_key(p,video)
+    result=component_video.preview(sys.modules[__name__],payload)
+    if component_review_key(p,video)!=key:raise ValueError('预览期间源文件或工具已变，请重新预览')
+    with LOCK:COMPONENT_REVIEWS[p.name]=key
+    result['previewToken']=key
+    return result
+
+
+def require_component_review(p,payload):
+    video=payload.get('video',{})
+    if video.get('mode')!='components':return
+    component_video.validate(sys.modules[__name__],p,video)
+    if COMPONENT_REVIEWS.get(p.name)!=component_review_key(p,video):
+        raise ValueError('当前方案未有效预览或预览已失效，请重新预览并核对后再制作')
+
+
 def submit(kind,payload):
-    p=project(payload['project']);jid=uuid.uuid4().hex
-    job={'id':jid,'project':p.name,'kind':kind,'status':'queued','message':'等待处理','cancel':False,'log':str(p/(jid+'.log'))}
-    JOBS[jid]=job
+    payload=copy.deepcopy(payload);p=project(payload['project'])
+    with LOCK:
+        if any(j.get('project')==p.name and j.get('status') in ('queued','running') for j in JOBS.values()):
+            raise ValueError('该项目已有任务在制作或等待处理，请等待结束或取消完成后再试')
+        if kind=='video':require_component_review(p,payload)
+        jid=uuid.uuid4().hex
+        job={'id':jid,'project':p.name,'kind':kind,'status':'queued','message':'等待处理','cancel':False,'log':str(p/(jid+'.log'))}
+        JOBS[jid]=job
     def run():
         try:
             if job['cancel']: raise ValueError('任务已取消')
@@ -237,10 +279,14 @@ def submit(kind,payload):
                 if kind in ('note','edit'):
                     job['message']='正在清除图片元信息'
                     result['metadata_cleaned']=clean_note_metadata(out)
-                with zipfile.ZipFile(bundle,'w',zipfile.ZIP_DEFLATED) as z:
-                    for f in out.rglob('*'):
-                        if f.is_file() and f!=bundle and 'node_modules' not in f.parts and 'project' not in f.relative_to(out).parts: z.write(f,f.relative_to(out))
-                    if (out/'project'/'input.json').exists(): z.write(out/'project'/'input.json','视频内容.json')
+                if kind=='video':
+                    build_video_bundle(job,out,bundle);result['delivery_scope']='user-files-v1'
+                else:
+                    with zipfile.ZipFile(bundle,'w',zipfile.ZIP_DEFLATED) as z:
+                        for f in out.rglob('*'):
+                            if job['cancel']:raise ValueError('任务已取消')
+                            if f.is_file() and f!=bundle and 'node_modules' not in f.parts and 'project' not in f.relative_to(out).parts:z.write(f,f.relative_to(out))
+                if job['cancel']:raise ValueError('任务已取消')
                 result['download']=file_url(bundle)
                 state=read_project(p.name);state.setdefault('exports',[]).append(result);write_json(p/'project.json',state)
             job.update(status='done',message='本地导出完成' if kind!='import' else '素材导入完成',result=result)
@@ -315,8 +361,11 @@ class Handler(BaseHTTPRequestHandler):
                 for key in ['name','note','video']:
                     if key in data: state[key]=data[key]
                 state['updated']=time.time();write_json(p/'project.json',state);return self.respond(state)
+            if path=='/api/components/import-plan':
+                import ai_video_plan
+                return self.respond(ai_video_plan.import_plan(sys.modules[__name__],data))
             if path=='/api/components/analyse': return self.respond(component_video.analyse(sys.modules[__name__],data))
-            if path=='/api/components/preview': return self.respond(component_video.preview(sys.modules[__name__],data))
+            if path=='/api/components/preview': return self.respond(preview_components(data))
             if path=='/api/editor/open': return self.respond(image_editor.open_image(sys.modules[__name__],data))
             if path=='/api/editor/preview': return self.respond(image_editor.preview(sys.modules[__name__],data))
             if path in ['/api/import','/api/note','/api/video','/api/edit']: return self.respond(submit(path.rsplit('/',1)[1],data))

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "plan": "ai-native-plan.json",
+  "source": "示例课件.pptx",
+  "video": "ai-reference.mp4",
+  "before": "ai-reference-before.png",
+  "after": "ai-reference-after.png",
+  "frames": 240,
+  "duration": 8,
+  "sha256": "fa0f217108d0759e658099e563924361ff37944c235c55ee2eeeea70a5590800",
+  "verified": true,
+  "boundary": "虚构最小协议示例，真实课件需由AI重新读图设计并逐帧审片"
+}

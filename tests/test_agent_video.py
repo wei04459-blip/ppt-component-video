@@ -39,6 +39,12 @@ class AgentVideoTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'引擎已更新'):av.render(args)
         args=self.preview();image=next((self.work/'data').rglob('page.png'));Image.new('RGB',(960,540),'red').save(image)
         with self.assertRaisesRegex(ValueError,'导入页已变化'):av.render(args)
+    def test_plain_renderer_is_part_of_review_fingerprint(self):
+        original=Path.read_bytes
+        before=av.renderer_digest(app)
+        with patch.object(Path,'read_bytes',lambda path:original(path)+b'changed' if path.name=='plain_components.py' else original(path)):
+            self.assertNotEqual(before,av.renderer_digest(app))
+
     def test_moved_work_folder_keeps_page_mapping_and_preview(self):
         self.preview();moved=Path(self.tmp.name)/'moved';shutil.move(self.work,moved);self.work=moved;self.args.work=str(moved)
         self.preview();state=app.read_project('d'*32)

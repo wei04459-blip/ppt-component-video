@@ -1,113 +1,108 @@
-# 给第一次接手的 Agent：从原始 PPT 制作组件重组视频
+# 给 Codex / WorkBuddy：从任意课件制作原生组件重组视频
 
-你不需要知道本工具的历史，也不需要寻找以前的聊天或代码库。用户给你的输入是这个完整工具包和一份 PPT。先读本文件，再查看 `examples/agent-video/` 的参考图片、视频和方案。使用包内现有引擎执行，输出视频文件；不要仅给用户操作建议。
+**本工具明确配合 AI 使用。** 用户给你工具包和 PPT/PPTX/PDF，由你阅读课件、理解内容、设计两版并写方案；用户不需要手写 JSON。工具负责原件隔离导入、真实 Motion Canvas 预览、同内容映射检查、组件聚合渲染、普通 PPT 与交付文件。不要把辅助 OCR 或候选对象当已经完成的设计。
 
-## 要做成什么
+准确入口：本文 → `docs/AI视频方案协议.md` → `examples/agent-video/ai-native-plan.json`。已认可动势保留在 `video/src/v7/`，当前独立普通版聚合实现为 `video/src/semantic.tsx`。不要另造截图动画，不要用 Python 逐帧排字替代核心动画。
 
-制作一条竖屏 PPT 排版对比视频。上半部分始终显示**同内容的普通排版**，下半部分的组件从普通版位置移动、缩放、渐变回原 PPT 的成品位置。成品版以用户原页为准；普通版是你重新排版的演示，不代表作者的历史初稿。
+## 必须做成什么
 
-- 默认选择 2–3 页适合展示的页面，每页 4 秒；用户指定页数/页号优先。一次最多 6 页。
-- 输出 1080×1440、24 fps、H.264/AAC MP4，以及普通版 PPTX、两版图片、可编辑组件方案和交付 ZIP。
-- 尽量每页 3–8 个有意义组件。标题、整张图表、完整流程、图片组分别成组；不要把图表中的每个数字拆开。
-- 普通版保留原文、数字、单位和图表含义。纯装饰可以省略，业务内容不能为了突出美化效果故意删减。
-- 不允许用整页图片平移或整页淡入替代组件重组。CLI 至少要求每页两个组件；这只是底线，你仍需检查真实效果。
-- 组件最后回到原 PPT 画面。最后会短暂补全整页背景和未选装饰；这不能掩盖遗漏的正文。
+上方固定显示**同内容、真正独立的简陋 PPT**：白底黑字，默认标题、连续编号或项目正文、基础表格、单独朴素摆放的照片。不能把成品卡片去边框/缩小/拆散就叫普通版，不能继承成品组内标题条、夹图、卡片阅读布局。
 
-## 你需要具备的能力
+下方从这批普通文字、表格和照片出发，短促抬起 → 图文迅速按语义聚合 → 整组穿行 → 轻回弹落位。允许过程穿插，不追求零碰撞；避免散字漂移、卡顿、逐帧换行、字格裂开、蛇行绕远和落位时换成整张截图。文字采用稳定短句或行节点，照片保持比例。
 
-需要能读取/修改本地文件、运行 Python 命令，并查看图片（最好也能观看视频）。只支持文字聊天、没有文件/执行权限的 Agent 无法完成这项任务。无需指定品牌模型或 API Key。用户素材不应未经授权发给第三方网站。
+成品参考原页层级、结构和配色做原生重建，内容完整优先；允许装饰与渐变差异，但不能擅自改原文、数字、单位、编号或流程方向。源图本身有异常词形时先如实记录，不能按常识偷偷改成正常词。纯装饰可省略，关键结构、照片、表格全行列不能省略。不得承诺任意文件都能零失败。
 
-工作目录和路径由你选择。下面的 `WORK` 代表一个**尚不存在的新目录**，`SOURCE.pptx` 换成用户提供的真实路径。命令在工具包根目录执行；路径有空格时加引号。不要复制本项目开发机器的路径。
+## 1. 环境
 
-## 1. 准备环境
-
-Python 3.11+，LibreOffice 和 FFmpeg（可由 imageio-ffmpeg 提供）。此组件视频入口**不需要 Node.js 或浏览器**。
-
-Mac/Linux：
+Python 3.11+、LibreOffice、Node.js 20+、FFmpeg、Motion Canvas、Playwright Chromium。原素材只读，不覆盖历史输出。
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install --timeout 120 --retries 5 -r requirements-agent.txt
+.venv/bin/python -m pip install -r requirements-agent.txt
+cd video
+npm ci
+npx playwright install chromium
+cd ..
 .venv/bin/python agent_video.py doctor
 ```
 
-Windows PowerShell：
+已有 `.venv` 直接复用。Windows 命令中的 Python 改成 `.venv\Scripts\python.exe`；Windows 尚未真机验收。缺 LibreOffice 时先安装，或让用户提供 PDF。`doctor.ready:true` 才继续。
 
-```powershell
-python -m venv .venv
-& .venv\Scripts\python.exe -m pip install --timeout 120 --retries 5 -r requirements-agent.txt
-& .venv\Scripts\python.exe agent_video.py doctor
-```
+本地 OCR 是**可选辅助**：需要时安装 `requirements-ocr.txt`；RapidOCR 使用随 wheel 附带的本地 ONNX 模型，macOS 可额外用 Vision 提供独立证据。不会上传课件到第三方；识别可能误读或遗漏，不能代替你看原图。没有 OCR 也可由你读图并转录，不能因此把整页截图作普通版。
 
-如果已经有 `.venv`，直接复用，不要重建。下载较慢时可用已安装的 uv 执行 `uv pip install --python .venv/bin/python -r requirements-agent.txt`（Windows 换成对应 Python 路径）。`doctor` 返回 `ready:true` 且退出码 0 才继续。缺 LibreOffice 时：Windows 可运行随包的 `安装PPT支持Windows.cmd`；Mac 可在已安装 Homebrew 时用 `brew install --cask libreoffice`，否则安装 LibreOffice。Linux 安装发行版的 LibreOffice。首次依赖安装需要网络；之后处理在本地完成。包内不附 Python/LibreOffice，不是免环境安装包。Windows 尚未真机验收，不能声称已经通过。
+## 2. 导入并读完整课件
 
-以下命令以 Mac 的 `.venv/bin/python` 演示；Windows 换成 `.venv\Scripts\python.exe`。
-
-## 2. 导入与读图
+选择一个尚不存在的 `WORK`，使用用户真实原件：
 
 ```sh
-.venv/bin/python agent_video.py prepare --ppt "SOURCE.pptx" --work "WORK"
+.venv/bin/python agent_video.py prepare --ppt "SOURCE.pptx" --work "WORK" --pages 5
 ```
 
-可以加 `--pages 2,5,8` 指定初始选页。没有指定时，初始方案只取前三页作为占位；你必须查看全册再选页。
+可选 `--ocr` 生成本地识别证据；非必需。默认初始取前三页，仅为占位，不代表自动选品或成品。
 
-输出：
+导入会产生：
 
-- `project.json`：所有页面的页号、本地图片路径、原生对象边界与文本。
-- `contact-*.jpg`：每张最多 12 页的总览，先全部查看，再打开候选页原图。
-- `plan.json`：初始组件方案。原生对象只是建议，可能重叠、分组过碎、遗漏超过 40 个对象或被截断的长文本。
-- `data/`：隔离保存的导入素材；不覆盖用户 PPT 或现有 GUI 作品。
+- `project.json`：完整页号、原页 PNG、本地原生对象/表格/素材建议；来源和辅助分析状态。
+- `contact-*.jpg`：全册总览，每张最多12页。先看全部总览，再打开候选页原图；复杂小字需放大读，不能只凭缩略图。
+- `assets/`：能够原生提取的独立图片，供你查看；图片里的字仍要核实，聊天截图/业务截图不能一概称照片。
+- `plan.json`：待你完成的方案骨架，`workflow: ai-native-v1`；不是自动完成的设计。
+- `data/`、`source-hashes.json`：隔离原始导入与指纹，不要修改。
 
-根据内容选页。优先有清楚的标题、图表、流程或图片组的页面；不要只挑封面，默认至少选择一页内容页。原 PPT 缺页、损坏、加密或缺字体时，如实处理报错。字体替换可能改变排版，要在这里核对。
+用户指定页号/范围优先，否则从全册选2–3页，默认至少一页内容页；一次1–6页，每页4秒。图片型课件候选对象为空或 OCR 受限时，你仍应直接读原页继续构建方案；无法辨认的具体字/数字必须记录并补齐，不能臆造或整页复用。
 
-## 3. 编辑方案（你完成判断，工具完成渲染）
+## 3. AI 动态制定方案：先静态，后运动
 
-方案字段说明与完整例子见 `docs/Agent视频方案格式.md`。仅编辑 `plan.json`，不要改导入页、源指纹、源码或把确认步骤删掉。
+你应直接用文件工具/脚本编写 `WORK/plan.json`，不让用户手填。**复杂真实页推荐主路是显式 `scene` + 每个文字/照片的 `node.before`**，格式见 `docs/AI视频方案协议.md`。`components` 是内容真源和源页核对范围，`scene` 是原生目标画面；同一节点用独立 before 页坐标呈现普通端。显式 scene 永远优先，辅助自动候选不会覆盖它。
 
-- 原生 PPT：合并重复/相互覆盖的对象，删去纯装饰框；核对是否漏掉真实内容。合并区域使用包含全部相关内容的矩形。
-- 图片型 PPT / PDF：`objects` 可能为空。直接查看原页，根据图像画出矩形边界，在 `components` 中填入 `target`；不要要求用户重新手动拆图才能继续。坐标按图像宽高换算为 0–1。
-- 普通版的位置用 `before`。按阅读顺序做白底、对齐、留白的朴素布局，保留文字可读性。
-- `text` 非空时，普通版显示独立黑字；留空则保留原图裁剪块。仅转录你能看清的内容，不能编造数据。完整图表通常留空，避免误把图表简化成几个数字。
-- 图像组件是矩形裁剪，可能带背景或重叠对象。尽量用更完整的组合框解决，不能宣称得到透明矢量对象。若源截图本身无法辨认，记录具体位置，并只询问用户缺失的关键信息。
+按以下顺序完成：
 
-## 4. 生成实际预览并修正
+1. 逐项转录标题、正文、每个表格单元格、编号、流程方向和独立照片；保持所有来源内容可追查。
+2. 先设计普通端为文档阅读布局：标题 + 连续段落/基础表格，照片独立集中摆放。不要复用成品7卡片/4模块等内部布局。
+3. 原生重建成品：清楚标题层级、面板/表头、对齐、合适图文比例，使用源页主题配色与结构；不要求像素复刻。排版验收须避免词语断裂、单字孤行和标点孤行；按自然语义重新分行、调整宽度或图文比例，不能以缩水字号代替重排。
+4. 将短句/图片分别放入目标语义父组。组内坐标固定为终态，`node.before` 使用整页绝对坐标。工具自动完成聚合与整组运动，你不逐帧改字号阈值或换行。
+5. 填写每页 `aiReview`：`sourceRead/ordinaryIndependent/contentChecked:true` 和具体 `notes`，如实记录读了哪些页、核对什么、装饰差异/仍有何限制。它是AI审阅记录，不代表用户批准。
+
+每条文字必须有稳定 `id` 与 `sourceRef`；每张照片也必须映射到 `plain` 的图片 `asset`。不要拿聊天/评分表/图表的整块截图当 image，业务文字与数据必须核对重建；图表可重建图形或完整基础数据表，保留含义和方向。
+
+照片可使用节点 `sourceCrop:[x,y,w,h]` 从本页源图提取**独立照片/标志**，无需手抄 base64。也可用原始素材的 `imageData`；不要引用工作目录绝对 `src`。普通端用 `before.w/h` 槽，工具保持比例。不可裁整页或成品卡片充数。
+
+原生对象、OCR、照片候选都是辅助证据，可能有误。AI核实并重建后，显式方案配合 `aiReview` 可接管辅助阻塞；不需要篡改原件或关掉校验。修复你自己写错的输入，不绕过内容映射/预览指纹。
+
+## 4. 查看实际首尾，再检查运动
 
 ```sh
 .venv/bin/python agent_video.py preview --work "WORK"
 ```
 
-打开返回目录下**所有** `before-after.png`、`regions.png` 和 `motion.png`。前者左侧普通版、右侧成品版；后者标明原页框选范围。检查文字/数字/单位对应、框选完整、普通版不重叠不截字。不要仅凭返回成功或图像存在就宣布检查通过。修改 `plan.json` 后重跑本步。
+这是实际 Motion Canvas 帧，不是静态模拟。先打开所有 `before-after.png`：普通端是否独立、完整可读，成品是否清楚有设计，原文字数/表格/照片/方向是否对应。普通版 PPT 与真实首帧共用节点状态。再看 `motion.png` 和视频运动段连续帧；少量快照不证明流畅。
 
-预览返回 `review_token`。它只代表当前方案的指纹，不代表用户批准或自动视觉验收。你看过预览并确认后，用自己的核对说明进入下一步。用户已经委托制作时，不需要每一步都问用户许可。
+`regions.png` 只用于源页框选核对；GUI中的框和布局概览也不是最终渲染。实际 MC 首尾才是画面依据。修改 components/scene/node.before/字体/源页后必须重新 preview，旧 token 失效。
 
-## 5. 导出和技术校验
+源图不清、节点越界、文字小于内容槽有效8px、照片映射缺失或文字不同源会明确失败。不要为了过检查删字或把字缩成小点；重新分配空间、合并合理语义或换清晰源件。
+
+## 5. 渲染、逐帧审片和交付
 
 ```sh
-.venv/bin/python agent_video.py render --work "WORK" --reviewed "上一步的review_token" --review-note "具体记录核对了哪些页、文字与数值、框选和布局，以及已知限制"
+.venv/bin/python agent_video.py render --work "WORK" --reviewed "PREVIEW_TOKEN" --review-note "具体核对内容与两版差异"
 .venv/bin/python agent_video.py verify --work "WORK"
 ```
 
-渲染会拒绝修改后未重新预览的方案。失败时读取 `import.log` / `render.log`；修正输入或布局后重试，不改源码绕过校验。每次渲染创建新输出目录，不覆盖旧视频。`latest-result.json` 指向最近一次成功结果。
+输出1080×1440、30fps、H.264/AAC；每页120帧。渲染独立新目录，不覆盖旧作品。完整解码、帧数、资源/字体与 plan→scene 文字映射是技术检查，**不能自动证明对原课件转录完整，也不能证明好看**。
 
-常见问题：
+普通PPT也要实际转图验收：用本任务fontconfig，不只检查提取文字。执行`.venv/bin/python docs/检查普通PPT字体.py --work "WORK" --ppt "OUTPUT/普通排版版.pptx"`后逐页看PNG；字体环境边界见`docs/普通PPT字体与检查.md`。外部编辑器依赖可用Noto CJK或中文替代字体，未做所有Office/平台保证。可把已检查的PDF随交付附上。
 
-| 报错或现象 | 处理 |
-|---|---|
-| 普通版文字放不下 | 扩大该组件、重新分配布局；必要时分成多个有意义组件。不要静默删关键内容 |
-| 组件为空 / 少于两个 | 图片页需视觉框选；无法形成有意义对比时改选页，并说明原因 |
-| 坐标越界 | 每个矩形满足 x≥0、y≥0、w/h≥0.005、x+w≤1、y+h≤1 |
-| 指纹或预览失效 | 方案改动后重新 preview；源页改动则在新工作目录重新 prepare |
-| 普通版仍像成品版 | 对适合转录的文字填入 text，调整 before；图表可保留原图，但不要声称整页彻底去除了样式 |
-| 颜色块连带背景、重影 | 合并相关对象或重新框选；原引擎无法恢复被遮挡背景 |
+实际观看 MP4；不能实时播放时明确限制，并按30fps检查每页约0.6–2.3秒全部连续帧及终态。重点：普通端始终不动，下方同批图文迅速成组、连贯穿行、自然回弹、成品停留足够。允许穿插，避免文字格子裂开/裁切/突然替换/二次拖走。
 
-## 6. 看成片，再交付
+交付 MP4、普通PPTX、两版实际图片、可编辑方案与ZIP，保留审阅与SHA证据。只称本地完成，不称已发布、Windows已实测或像素级复刻。没有实际审片不得宣布视觉通过。
 
-工具自动检查全片能解码，但不能替你判断视频好看或内容无误。观看 MP4；如不能播放，抽取每页连续运动阶段的多帧，至少覆盖起点、移动、归位、最终停留，检查是否只是整页闪现。包中已有 `预览_页_帧.png`（第 0/42/90 帧），它们可辅助检查，但不能单独证明运动连贯。需要更多帧时用 FFmpeg，例如 `ffmpeg -i 视频.mp4 -vf fps=6 核对-%03d.png`。
+## 6. GUI 与 Agent 互通
 
-最终回复交付 MP4、ZIP 和普通版 PPTX 的可打开路径，说明选用页号、时长、视觉检查结果与剩余限制。保留 `agent-plan.json`、`agent-review.json` 和 `sha256.json` 供复查。只有技术校验而未看成片时必须明确说未完成视觉验收。不要声称视频已发布、Windows 已验证或截图已变成完整可编辑原生 PPT。
+用户在GUI导入同一个原始文件后，点击“导入AI方案”，选择你生成的完整 `plan.json`。`input_sha256` 必须保留原件指纹；工具绑定当前项目的源页并替换外部 source 路径。失败不会覆盖现有作品；成功也清除旧确认，仍需实际预览和逐页确认。
 
-## 无背景自测
+新API为 `POST /api/components/import-plan`，输入 `{project,plan}`。不要通过改 project.data 伪造源页，不把另一作品的路径放入计划。GUI上传本身不自动生成低质量成品；辅助识别按钮只供AI准备材料。
 
-随包 `examples/agent-video/示例课件.pptx` 含一页原生对象、一页图片型内容，均为虚构演示素材。`reference-plan.json` 展示 Agent 整理后的方案，`reference.mp4` 与 `reference-preview.png` 展示引擎的实际效果边界。
+## 7. 无历史自测
 
-用示例 PPT 在一个新 WORK 跑 prepare，然后用 reference-plan.json 替换 WORK/plan.json，依次 preview、看图、render、verify。该自测不依赖任何历史聊天、原开发目录、后台服务或已有作品。它检查工具包链路；用户真实 PPT 仍必须按上述步骤重新看图和调整方案。
+阅读 `examples/agent-video/ai-native-plan.json` 学习完整、可执行的文字映射和独立 before 布局。可用 `examples/agent-video/示例课件.pptx` 在新 WORK prepare 后，将该示例方案复制为 plan.json，走 preview → 看首尾/运动 → render → verify。它是虚构示范；真实新课件必须由你重新读图、动态编排，不套用示例坐标或把历史样片当唯一场景。
+
+`native-reference-plan.json`、旧 `reference.mp4` 是较早的兼容示例；不会代表你新课件已验收。当前AI协作示例另用 `ai-native-plan.json`，配套 `ai-reference.mp4`、`ai-reference-before.png`、`ai-reference-after.png` 来自同次240帧实际导出，详见 `ai-reference-result.json`。不要回到退役截图切块/擦除替换路线。

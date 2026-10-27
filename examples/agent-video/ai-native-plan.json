@@ -1,0 +1,924 @@
+{
+  "schemaVersion": 1,
+  "input_sha256": "390cfcc0331aca26891bed4d2c47e5f3e8dea524725ee7151992ff1d42f26674",
+  "motion": "stagger",
+  "music": true,
+  "pages": [
+    {
+      "number": 1,
+      "components": [
+        {
+          "id": "2",
+          "name": "title",
+          "text": "",
+          "target": [
+            0.05,
+            0.06,
+            0.9,
+            0.15
+          ],
+          "before": [
+            0.04,
+            0.04,
+            0.92,
+            0.15
+          ],
+          "plain": {
+            "kind": "text",
+            "text": "项目复盘 · 从想法到交付",
+            "role": "title"
+          }
+        },
+        {
+          "id": "3",
+          "name": "step1",
+          "text": "",
+          "target": [
+            0.036458333333333336,
+            0.3148148148148148,
+            0.2916666666666667,
+            0.5185185185185185
+          ],
+          "before": [
+            0.045,
+            0.3333333333333333,
+            0.85,
+            0.09
+          ],
+          "plain": {
+            "kind": "text",
+            "title": "01  明确目标",
+            "text": "整理需求与验收标准"
+          }
+        },
+        {
+          "id": "4",
+          "name": "step2",
+          "text": "",
+          "target": [
+            0.3541666666666667,
+            0.3148148148148148,
+            0.2916666666666667,
+            0.5185185185185185
+          ],
+          "before": [
+            0.045,
+            0.4537037037037037,
+            0.85,
+            0.09
+          ],
+          "plain": {
+            "kind": "text",
+            "title": "02  制作初稿",
+            "text": "完成结构与内容检查"
+          }
+        },
+        {
+          "id": "5",
+          "name": "step3",
+          "text": "",
+          "target": [
+            0.671875,
+            0.3148148148148148,
+            0.2916666666666667,
+            0.5185185185185185
+          ],
+          "before": [
+            0.045,
+            0.5740740740740741,
+            0.85,
+            0.09
+          ],
+          "plain": {
+            "kind": "text",
+            "title": "03  核对交付",
+            "text": "预览修正并保存成品"
+          }
+        }
+      ],
+      "scene": {
+        "width": 960,
+        "height": 540,
+        "groups": [
+          {
+            "id": "2",
+            "size": [
+              890,
+              80
+            ],
+            "before": [
+              35,
+              30,
+              1
+            ],
+            "after": [
+              35,
+              30,
+              1
+            ],
+            "index": 0,
+            "nodes": [
+              {
+                "kind": "text",
+                "id": "p1-main-title",
+                "text": "项目复盘 · 从想法到交付",
+                "x": 0,
+                "y": 0,
+                "fontSize": 31,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#005ea6",
+                "sourceRef": {
+                  "component": "2",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 40,
+                  "y": 35,
+                  "fontSize": 28,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "size": [
+              280,
+              280
+            ],
+            "before": [
+              35,
+              170,
+              1
+            ],
+            "after": [
+              35,
+              170,
+              1
+            ],
+            "index": 1,
+            "nodes": [
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 280,
+                "fill": "#ffffff",
+                "afterFill": "#edf5fc",
+                "stroke": "#ffffff",
+                "afterStroke": "#c5dbea",
+                "radius": 0,
+                "afterRadius": 10,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 52,
+                "fill": "#ffffff",
+                "afterFill": "#005ea6",
+                "radius": 0,
+                "afterRadius": 8,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p1-g1-title",
+                "text": "01  明确目标",
+                "x": 16,
+                "y": 14,
+                "fontSize": 20,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#ffffff",
+                "sourceRef": {
+                  "component": "3",
+                  "path": "title"
+                },
+                "before": {
+                  "x": 45,
+                  "y": 180,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p1-g1-body0",
+                "text": "整理需求与验收标准",
+                "x": 16,
+                "y": 85,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "3",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 180,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "size": [
+              280,
+              280
+            ],
+            "before": [
+              340,
+              170,
+              1
+            ],
+            "after": [
+              340,
+              170,
+              1
+            ],
+            "index": 2,
+            "nodes": [
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 280,
+                "fill": "#ffffff",
+                "afterFill": "#edf5fc",
+                "stroke": "#ffffff",
+                "afterStroke": "#c5dbea",
+                "radius": 0,
+                "afterRadius": 10,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 52,
+                "fill": "#ffffff",
+                "afterFill": "#005ea6",
+                "radius": 0,
+                "afterRadius": 8,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p1-g2-title",
+                "text": "02  制作初稿",
+                "x": 16,
+                "y": 14,
+                "fontSize": 20,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#ffffff",
+                "sourceRef": {
+                  "component": "4",
+                  "path": "title"
+                },
+                "before": {
+                  "x": 45,
+                  "y": 245,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p1-g2-body0",
+                "text": "完成结构与内容检查",
+                "x": 16,
+                "y": 85,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "4",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 245,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          },
+          {
+            "id": "5",
+            "size": [
+              280,
+              280
+            ],
+            "before": [
+              645,
+              170,
+              1
+            ],
+            "after": [
+              645,
+              170,
+              1
+            ],
+            "index": 3,
+            "nodes": [
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 280,
+                "fill": "#ffffff",
+                "afterFill": "#edf5fc",
+                "stroke": "#ffffff",
+                "afterStroke": "#c5dbea",
+                "radius": 0,
+                "afterRadius": 10,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 52,
+                "fill": "#ffffff",
+                "afterFill": "#005ea6",
+                "radius": 0,
+                "afterRadius": 8,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p1-g3-title",
+                "text": "03  核对交付",
+                "x": 16,
+                "y": 14,
+                "fontSize": 20,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#ffffff",
+                "sourceRef": {
+                  "component": "5",
+                  "path": "title"
+                },
+                "before": {
+                  "x": 45,
+                  "y": 310,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p1-g3-body0",
+                "text": "预览修正并保存成品",
+                "x": 16,
+                "y": 85,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "5",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 310,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "aiReview": {
+        "sourceRead": true,
+        "ordinaryIndependent": true,
+        "contentChecked": true,
+        "notes": "虚构演示课件；普通端白底连续段落，无成品面板，成品为清楚三栏卡片；已逐项核对同内容映射。"
+      }
+    },
+    {
+      "number": 2,
+      "components": [
+        {
+          "id": "image-0",
+          "name": "交付检查 · 三个关键动作",
+          "text": "",
+          "target": [
+            0.05,
+            0.06,
+            0.9,
+            0.15
+          ],
+          "before": [
+            0.04,
+            0.04,
+            0.92,
+            0.15
+          ],
+          "plain": {
+            "kind": "text",
+            "text": "交付检查 · 三个关键动作",
+            "role": "title"
+          }
+        },
+        {
+          "id": "image-1",
+          "name": "核对内容",
+          "text": "",
+          "target": [
+            0.036458333333333336,
+            0.3148148148148148,
+            0.2916666666666667,
+            0.5185185185185185
+          ],
+          "before": [
+            0.045,
+            0.3333333333333333,
+            0.85,
+            0.09
+          ],
+          "plain": {
+            "kind": "text",
+            "title": "核对内容",
+            "text": "标题、数字、\n单位一致"
+          }
+        },
+        {
+          "id": "image-2",
+          "name": "查看画面",
+          "text": "",
+          "target": [
+            0.3541666666666667,
+            0.3148148148148148,
+            0.2916666666666667,
+            0.5185185185185185
+          ],
+          "before": [
+            0.045,
+            0.4537037037037037,
+            0.85,
+            0.09
+          ],
+          "plain": {
+            "kind": "text",
+            "title": "查看画面",
+            "text": "组件完整、\n文字清楚"
+          }
+        },
+        {
+          "id": "image-3",
+          "name": "保存结果",
+          "text": "",
+          "target": [
+            0.671875,
+            0.3148148148148148,
+            0.2916666666666667,
+            0.5185185185185185
+          ],
+          "before": [
+            0.045,
+            0.5740740740740741,
+            0.85,
+            0.09
+          ],
+          "plain": {
+            "kind": "text",
+            "title": "保存结果",
+            "text": "视频、方案、\n来源齐全"
+          }
+        }
+      ],
+      "scene": {
+        "width": 960,
+        "height": 540,
+        "groups": [
+          {
+            "id": "image-0",
+            "size": [
+              890,
+              80
+            ],
+            "before": [
+              35,
+              30,
+              1
+            ],
+            "after": [
+              35,
+              30,
+              1
+            ],
+            "index": 0,
+            "nodes": [
+              {
+                "kind": "text",
+                "id": "p2-main-title",
+                "text": "交付检查 · 三个关键动作",
+                "x": 0,
+                "y": 0,
+                "fontSize": 31,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#005ea6",
+                "sourceRef": {
+                  "component": "image-0",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 40,
+                  "y": 35,
+                  "fontSize": 28,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          },
+          {
+            "id": "image-1",
+            "size": [
+              280,
+              280
+            ],
+            "before": [
+              35,
+              170,
+              1
+            ],
+            "after": [
+              35,
+              170,
+              1
+            ],
+            "index": 1,
+            "nodes": [
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 280,
+                "fill": "#ffffff",
+                "afterFill": "#edf5fc",
+                "stroke": "#ffffff",
+                "afterStroke": "#c5dbea",
+                "radius": 0,
+                "afterRadius": 10,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 52,
+                "fill": "#ffffff",
+                "afterFill": "#005ea6",
+                "radius": 0,
+                "afterRadius": 8,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g1-title",
+                "text": "核对内容",
+                "x": 16,
+                "y": 14,
+                "fontSize": 20,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#ffffff",
+                "sourceRef": {
+                  "component": "image-1",
+                  "path": "title"
+                },
+                "before": {
+                  "x": 45,
+                  "y": 180,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g1-body0",
+                "text": "标题、数字、",
+                "x": 16,
+                "y": 85,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "image-1",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 180,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g1-body1",
+                "text": "单位一致",
+                "x": 16,
+                "y": 117,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "image-1",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 207,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          },
+          {
+            "id": "image-2",
+            "size": [
+              280,
+              280
+            ],
+            "before": [
+              340,
+              170,
+              1
+            ],
+            "after": [
+              340,
+              170,
+              1
+            ],
+            "index": 2,
+            "nodes": [
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 280,
+                "fill": "#ffffff",
+                "afterFill": "#edf5fc",
+                "stroke": "#ffffff",
+                "afterStroke": "#c5dbea",
+                "radius": 0,
+                "afterRadius": 10,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 52,
+                "fill": "#ffffff",
+                "afterFill": "#005ea6",
+                "radius": 0,
+                "afterRadius": 8,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g2-title",
+                "text": "查看画面",
+                "x": 16,
+                "y": 14,
+                "fontSize": 20,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#ffffff",
+                "sourceRef": {
+                  "component": "image-2",
+                  "path": "title"
+                },
+                "before": {
+                  "x": 45,
+                  "y": 245,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g2-body0",
+                "text": "组件完整、",
+                "x": 16,
+                "y": 85,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "image-2",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 245,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g2-body1",
+                "text": "文字清楚",
+                "x": 16,
+                "y": 117,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "image-2",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 272,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          },
+          {
+            "id": "image-3",
+            "size": [
+              280,
+              280
+            ],
+            "before": [
+              645,
+              170,
+              1
+            ],
+            "after": [
+              645,
+              170,
+              1
+            ],
+            "index": 3,
+            "nodes": [
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 280,
+                "fill": "#ffffff",
+                "afterFill": "#edf5fc",
+                "stroke": "#ffffff",
+                "afterStroke": "#c5dbea",
+                "radius": 0,
+                "afterRadius": 10,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 280,
+                "h": 52,
+                "fill": "#ffffff",
+                "afterFill": "#005ea6",
+                "radius": 0,
+                "afterRadius": 8,
+                "before": {
+                  "opacity": 0
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g3-title",
+                "text": "保存结果",
+                "x": 16,
+                "y": 14,
+                "fontSize": 20,
+                "fontWeight": 700,
+                "fill": "#111111",
+                "afterFill": "#ffffff",
+                "sourceRef": {
+                  "component": "image-3",
+                  "path": "title"
+                },
+                "before": {
+                  "x": 45,
+                  "y": 310,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g3-body0",
+                "text": "视频、方案、",
+                "x": 16,
+                "y": 85,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "image-3",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 310,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              },
+              {
+                "kind": "text",
+                "id": "p2-g3-body1",
+                "text": "来源齐全",
+                "x": 16,
+                "y": 117,
+                "fontSize": 20,
+                "fill": "#111111",
+                "afterFill": "#103758",
+                "sourceRef": {
+                  "component": "image-3",
+                  "path": "text"
+                },
+                "before": {
+                  "x": 235,
+                  "y": 337,
+                  "fontSize": 21,
+                  "fontWeight": 400,
+                  "fill": "#111111"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "aiReview": {
+        "sourceRead": true,
+        "ordinaryIndependent": true,
+        "contentChecked": true,
+        "notes": "虚构演示课件；普通端白底连续段落，无成品面板，成品为清楚三栏卡片；已逐项核对同内容映射。"
+      }
+    }
+  ],
+  "workflow": "ai-native-v1"
+}

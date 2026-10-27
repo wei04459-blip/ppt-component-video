@@ -1,28 +1,43 @@
-"""Deterministic, local component selection and before/after motion export."""
+"""GUI/Agent component entry: semantic data compiled to native Motion Canvas."""
 import io, json, math, shutil
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageOps
 from pptx import Presentation
 from pptx.util import Inches, Pt
 import video_fonts as fonts
+import plain_components as plain
+import semantic_scene as semantic
+_LOADED_RENDERER=semantic.renderer_fingerprint(Path(__file__).resolve().parent)
+
+def ensure_engine_current():
+    if semantic.renderer_fingerprint(Path(__file__).resolve().parent)!=_LOADED_RENDERER:
+        raise ValueError("工具已更新，请重启工具后重新预览或导出")
+
+
+FPS=30
+PAGE_SECONDS=4
 
 
 def object_pages(path):
-    prs=Presentation(path);result=[]
-    def text(shape):
-        if getattr(shape,'has_text_frame',False):return shape.text
-        if hasattr(shape,'shapes'):return '\n'.join(filter(None,(text(s) for s in shape.shapes)))
-        if getattr(shape,'has_table',False):return '\n'.join(' | '.join(c.text for c in row.cells) for row in shape.table.rows)
-        return ''
-    for slide in prs.slides:
-        items=[]
-        for shape in slide.shapes:
-            x=max(0,shape.left/prs.slide_width);y=max(0,shape.top/prs.slide_height)
-            w=min(1-x,shape.width/prs.slide_width);h=min(1-y,shape.height/prs.slide_height)
-            if min(w,h)<.008 or w*h>.92:continue
-            items.append({'id':str(shape.shape_id),'name':shape.name[:60],'text':text(shape)[:2000], 'target':[x,y,w,h]})
-        result.append(items[:40])
-    return result
+    import auto_components
+    return auto_components.extract_pages(path)
+
+
+def suggested_layout(items):
+    """New imports only: a full-width title followed by a natural reading grid."""
+    title=None
+    for i,item in enumerate(items):
+        value=item.get('plain');text=item.get('text','');x,y,w,h=item['target']
+        if value is None and text.strip():
+            role='title' if y<.24 and w>.5 and h<.28 and len(text)<=100 else 'body'
+            value=dict(kind='text',text=text,role=role);item['plain']=value
+        if value and value.get('kind')=='text' and value.get('role')=='title' and title is None:title=i
+    rest=[i for i in range(len(items)) if i!=title];count=len(rest)
+    cols=1 if count<=2 else 2 if count<=6 else 3 if count<=12 else 4;rows=max(1,math.ceil(count/cols));start=.23 if title is not None else .04
+    if title is not None:items[title]['before']=[.04,.04,.92,.15]
+    cw=.92/cols;ch=(.94-start)/rows
+    for order,i in enumerate(rest):items[i]['before']=[.04+order%cols*cw,start+order//cols*ch,cw-.025,ch-.035]
+    return items
 
 
 def analyse(app,payload):
@@ -32,12 +47,31 @@ def analyse(app,payload):
     folder=Path(state['pages_dir']).parent
     manifest=folder/'objects.json'
     objects=json.loads(manifest.read_text()) if manifest.exists() else {}
-    # Earlier imports stored one source file and its rendered pages.
-    pptx=list(folder.glob('*.pptx'))
-    if not objects and len(pptx)==1:
-        try:objects={str(i+1):v for i,v in enumerate(object_pages(pptx[0]))}
-        except Exception:objects={}
-    return {'pages':[{'source':u,'number':i+1,'objects':objects.get(str(i+1),[])} for i,u in enumerate(urls)],'notice':'每页最多读取 40 个对象，长文字最多 2000 字，请核对是否遗漏。读取的是对象边界；组件画面取自原页截图，重叠对象可能连带背景，请检查并合并。整页图片需要手动画框。'}
+    import auto_components,hashlib
+    fingerprint=auto_components.analysis_fingerprint();pptx=list(folder.glob('*.pptx'))
+    stale=any(o.get('autoNative',{}).get('extractorFingerprint')!=fingerprint for values in objects.values() for o in values)
+    if (not objects or stale or not any(o.get('autoNative') for values in objects.values() for o in values)) and len(pptx)==1:
+        objects={str(i+1):v for i,v in enumerate(object_pages(pptx[0]))};app.write_json(manifest,objects)
+    results=[];cache=p/'automatic-analysis';cache.mkdir(exist_ok=True)
+    for i,u in enumerate(urls):
+        items=json.loads(json.dumps(objects.get(str(i+1),[])));issues=[]
+        if items and items[0].get('extractionError'):issues=[dict(code='native-extraction',message=items[0]['extractionError'])];items=[]
+        if payload.get('ocr'):
+            source=source_image(app,p,u);sourceHash=hashlib.sha256(source.tobytes()).hexdigest();cached=cache/f'{i+1}-{fingerprint}-{sourceHash}.json'
+            if cached.exists():entry=json.loads(cached.read_text());items=entry['items'];issues=entry['issues']
+            else:
+                if items and any(o.get('autoNative',{}).get('kind')=='image' for o in items):
+                    items,extra=auto_components.expand_text_images(items,p/'local-ocr-cache');issues.extend(extra)
+                if not items:
+                    try:items,issues=auto_components.from_raster(source)
+                    except Exception as exc:issues=[dict(code='local-analysis',message=str(exc))]
+                app.write_json(cached,dict(analysisFingerprint=fingerprint,sourceHash=sourceHash,items=items,issues=issues))
+        # Suggestions are evidence for AI authoring, never an accepted or auto-rendered design.
+        if len(items)>39:items=auto_components.pack_items(items)
+        results.append(dict(source=u,number=i+1,objects=suggested_layout(items),recommended=False,automation=dict(status='needs-ai',issues=issues,analysisFingerprint=fingerprint,reviewRequired=True,summary=f'辅助材料：{len(items)}个对象；须由AI读完整课件、核内容并设计独立普通版和成品')))
+    return dict(pages=results,notice='这些是本地辅助提取结果，不是成品方案。请交给Codex或WorkBuddy读完整课件并生成原生方案，再导入核对实际预览。')
+
+
 
 
 def rectangle(value):
@@ -52,13 +86,17 @@ def validate(app,p,v,require_confirm=True):
     if not isinstance(pages,list) or not 1<=len(pages)<=6:raise ValueError('请选择 1–6 页制作视频')
     if v.get('motion') not in ['smooth','stagger','lift']:raise ValueError('请选择动效')
     for page in pages:
+        if page.get('automation',{}).get('status')=='blocked' and not (page.get('scene') and page.get('aiReview',{}).get('contentChecked')):raise ValueError('该页自动分析未完成：'+'；'.join(x.get('message','') for x in page['automation'].get('issues',[])))
         if page.get('source') not in state.get('pages',[]):raise ValueError('源课件已更换，请重新读取组件')
         items=page.get('components',[])
-        if not 1<=len(items)<=40:raise ValueError('每页请保留 1–40 个组件，截图页需要先画框')
+        if not 2<=len(items)<=40:raise ValueError('每页请保留 2–40 个组件，截图页需要先画框并填写完整内容')
         if require_confirm and not page.get('confirmed'):raise ValueError('请逐页确认组件和两版布局')
         for item in items:
             rectangle(item.get('target'));rectangle(item.get('before'))
-            if not isinstance(item.get('text',''),str) or len(item.get('text',''))>2000:raise ValueError('组件文字最多 2000 字')
+            if not isinstance(item.get('text',''),str) or len(item.get('text',''))>4000:raise ValueError('组件文字最多 4000 字，请分成多个组件')
+            plain.validate(plain.spec(item))
+        if not any(plain.has_rebuilt_content(plain.spec(item)) for item in items):
+            raise ValueError('普通版须重建原文或表格，不能整页复用成品图块')
     return pages
 
 
@@ -74,24 +112,8 @@ def crop(source,rect):
 
 
 def simple_tile(item,bitmap,size):
-    w,h=size;tile=Image.new('RGB',size,'white');d=ImageDraw.Draw(tile)
-    if item.get('text','').strip():
-        text=item['text'].strip()
-        for n in range(min(28,max(10,h//3)),7,-1):
-            font=fonts.load_font('黑体',n);lines=[];line=''
-            for char in text:
-                if char=='\n' or d.textlength(line+char,font=font)>w-16:
-                    lines.append(line);line='' if char=='\n' else char
-                else:line+=char
-            lines.append(line)
-            if len(lines)*(n+4)<=h-12:break
-        if len(lines)*(n+4)>h-12:raise ValueError('普通版文字放不下，请扩大组件或精简文字')
-        for i,line in enumerate(lines):d.text((8,6+i*(n+4)),line,font=font,fill='#222222')
-    else:
-        im=ImageOps.contain(bitmap,(max(1,w-12),max(1,h-12)),Image.Resampling.LANCZOS)
-        tile.paste(im,((w-im.width)//2,(h-im.height)//2))
-    d.rectangle((0,0,w-1,h-1),outline='#b8b8b8',width=1)
-    return tile
+    value=plain.spec(item);plain.validate(value)
+    return plain.render(value,bitmap,size)
 
 
 def prepare(app,p,page):
@@ -109,94 +131,80 @@ def prepare(app,p,page):
     return source,before,prepared
 
 
-def motion_stage(source, before, items, t, motion):
-    """Move aspect-preserved cards; replace styles without double-exposing text."""
-    if t <= .55:return before.copy()
-    if t >= 3.0:return source.copy()
-    stage=Image.new('RGB',source.size,'white')
-    for ci,(item,bitmap,tile) in enumerate(items):
-        delay=(ci/max(1,len(items)-1)*.45) if motion=='stagger' else 0
-        q=max(0,min(1,(t-.55-delay)/1.55))
-        ease=q*q*q*(q*(q*6-15)+10)
-        a,b=item['before'],item['target']
-        r=[a[k]+(b[k]-a[k])*ease for k in range(4)]
-        if motion=='lift':r[1]-=math.sin(math.pi*q)*.035
-        x,y,w,h=r
-        left,top=round(x*source.width),round(y*source.height)
-        right,bottom=round((x+w)*source.width),round((y+h)*source.height)
-        size=(max(1,right-left),max(1,bottom-top))
-        # Fade out the old face before revealing the new one. Never blend two text images.
-        turn=max(0,min(1,(q-.12)/.26)) if item.get('text','').strip() else 1
-        face=tile if turn<.5 else bitmap
-        fitted=ImageOps.contain(face,size,Image.Resampling.LANCZOS)
-        # Paste only the actual face, not an opaque letterbox covering adjacent cards.
-        opacity=abs(math.cos(math.pi*turn))
-        if opacity>.025:
-            mask=Image.new('L',fitted.size,round(255*opacity))
-            stage.paste(fitted,(left+(size[0]-fitted.width)//2,top+(size[1]-fitted.height)//2),mask)
-    # Settled components already match the original. Restore only remaining background.
-    reveal=max(0,min(1,(t-2.65)/.35))
-    return Image.blend(stage,source,reveal) if reveal else stage
+def pixel_rect(rect,size):
+    x,y,w,h=rect
+    left,top=round(x*size[0]),round(y*size[1])
+    return [left,top,max(1,round((x+w)*size[0])-left),
+            max(1,round((y+h)*size[1])-top)]
 
 
-def motion_preview(source,before,items,motion):
-    times=[0,.9,1.3,1.8,2.4,3.2]
-    thumb=(320,max(1,round(320*source.height/source.width)))
-    sheet=Image.new('RGB',(thumb[0]*3,(thumb[1]+26)*2),'#eeeeed')
-    draw=ImageDraw.Draw(sheet)
-    for i,t in enumerate(times):
-        frame=motion_stage(source,before,items,t,motion)
-        frame=frame.resize(thumb,Image.Resampling.LANCZOS)
-        x,y=(i%3)*thumb[0],(i//3)*(thumb[1]+26)
-        sheet.paste(frame,(x,y+26));draw.text((x+8,y+5),f'{t:.1f}s',fill='#222222')
+def semantic_prepare(app,p,page,assets):
+    import semantic_scene as semantic
+    source=source_image(app,p,page['source'])
+    scene=semantic.compile_page(source,page,assets)
+    before=semantic.static_image(scene,assets,False)
+    after=semantic.static_image(scene,assets,True)
+    return scene,before,after
+
+
+def semantic_preview_board(scene,before,after):
+    # This is a layout guide, deliberately not an imitation of Motion Canvas frames.
+    thumb=(480,round(480*before.height/before.width));sheet=Image.new('RGB',(960,thumb[1]+32),'#eeeeed');d=ImageDraw.Draw(sheet)
+    sheet.paste(before.resize(thumb),(0,32));sheet.paste(after.resize(thumb),(480,32));d.text((8,8),'BEFORE / fixed parent groups',fill='#222222');d.text((488,8),'AFTER / motion must be reviewed in MP4',fill='#222222')
     return sheet
 
 
 def preview(app,payload):
-    p=app.project(payload['project']);v=payload['video'];pages=validate(app,p,v,False)
-    import base64
-    results=[]
+    ensure_engine_current()
+    import base64,semantic_scene as semantic
+    p=app.project(payload['project']);v=payload['video'];pages=validate(app,p,v,False);results=[]
     for page in pages:
-        source,before,items=prepare(app,p,page);buf=io.BytesIO();before.save(buf,format='PNG')
-        motion=io.BytesIO();motion_preview(source,before,items,v['motion']).save(motion,format='PNG')
-        results.append({'before':'data:image/png;base64,'+base64.b64encode(buf.getvalue()).decode(),'after':page['source'], 'motion':'data:image/png;base64,'+base64.b64encode(motion.getvalue()).decode()})
-    return {'pages':results}
+        paths=semantic.actual_preview(app,p,page)
+        results.append(dict({k:'data:image/png;base64,'+base64.b64encode(path.read_bytes()).decode() for k,path in paths.items()},source=page['source']))
+    return dict(pages=results,engine='motion-canvas-native',notice='预览来自实际Motion Canvas帧；最终是原生语义重建，样式与源页可能有差异。')
 
 
 def export(app,job,payload,p):
-    v=payload['video'];pages=validate(app,p,v)
-    out=p/'exports'/job['id'];out.mkdir(parents=True);frames=out/'frames';frames.mkdir()
+    ensure_engine_current()
+    import semantic_scene as semantic
+    from pptx.dml.color import RGBColor
+    from pptx.enum.shapes import MSO_SHAPE
+    v=payload['video'];pages=validate(app,p,v);out=p/'exports'/job['id'];out.mkdir(parents=True)
+    work,assets=semantic.workspace(app,out);scenes=[];proofs=[]
     prs=Presentation();prs.slide_width=Inches(12);prs.slide_height=Inches(6.75)
-    previews=[];index=0;fps=24;length=96
-    label_font=fonts.load_font('黑体粗',48);small_font=fonts.load_font('黑体',21)
     for pi,page in enumerate(pages):
-        source,before,items=prepare(app,p,page)
-        before.save(out/f'{pi+1:02d}-普通版.png');source.save(out/f'{pi+1:02d}-成品版.png')
-        motion_preview(source,before,items,v['motion']).save(out/f'{pi+1:02d}-运动预览.png')
-        offset=((960-source.width)//2,(540-source.height)//2)
-        slide=prs.slides.add_slide(prs.slide_layouts[6])
-        for ci,(item,bitmap,tile) in enumerate(items):
-            x,y,w,h=item['before'];left=Inches((offset[0]+x*source.width)/80);top=Inches((offset[1]+y*source.height)/80);width=Inches(w*source.width/80);height=Inches(h*source.height/80)
-            if item.get('text','').strip():
-                shape=slide.shapes.add_textbox(left,top,width,height);shape.text_frame.word_wrap=True;shape.text=item['text']
-                from pptx.enum.text import MSO_AUTO_SIZE
-                shape.text_frame.auto_size=MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
-                for paragraph in shape.text_frame.paragraphs:paragraph.font.size=Pt(14);paragraph.font.name='Arial'
-            else:
-                stream=io.BytesIO();tile.save(stream,format='PNG');stream.seek(0);slide.shapes.add_picture(stream,left,top,width,height)
-        for f in range(length):
-            if job['cancel']:raise ValueError('任务已取消')
-            t=f/fps;canvas=Image.new('RGB',(1080,1440),'#eeeeed');draw=ImageDraw.Draw(canvas)
-            draw.text((60,36),'普通排版',font=label_font,fill='#222222');draw.text((60,731),'成品重组',font=label_font,fill='#a51c24')
-            canvas.paste(before,(60+offset[0],130+offset[1]))
-            stage=motion_stage(source,before,items,t,v['motion'])
-            canvas.paste(stage,(60+offset[0],830+offset[1]));draw.text((60,1396),'同一份内容 · 普通版为重新排版演示',font=small_font,fill='#666666')
-            canvas.save(frames/f'{index:06d}.png');index+=1
-            if f in [0,42,90]:
-                path=out/f'预览_{pi+1}_{f}.png';canvas.save(path);previews.append(app.file_url(path))
-            job['message']=f'正在制作第 {pi+1}/{len(pages)} 页：{f+1}/{length} 帧'
-    deck=out/'普通排版版.pptx';prs.save(deck);app.write_json(out/'组件方案.json',v)
-    movie=out/'组件重组视频.mp4';audio=['-stream_loop','-1','-i',app.ROOT/'video'/'music.wav'] if v.get('music',True) else ['-f','lavfi','-i','anullsrc=r=48000:cl=stereo']
-    app.command(job,[app.ffmpeg(),'-y','-framerate',str(fps),'-i',frames/'%06d.png',*audio,'-frames:v',str(index),'-c:v','libx264','-preset','fast','-crf','19','-pix_fmt','yuv420p','-c:a','aac','-shortest','-movflags','+faststart',movie])
-    app.command(job,[app.ffmpeg(),'-v','error','-i',movie,'-f','null','-']);shutil.rmtree(frames)
-    return {'video':app.file_url(movie),'simplePpt':app.file_url(deck),'images':previews,'frames':index,'duration':len(pages)*4,'directory':str(out)}
+        scene,before,after=semantic_prepare(app,p,page,assets);scenes.append(scene);proofs.append(semantic.audit_content(page,scene))
+        before.save(out/f'{pi+1:02d}-普通版.png');after.save(out/f'{pi+1:02d}-语义成品版.png')
+        source_image(app,p,page['source']).save(out/f'{pi+1:02d}-源页仅核对.png')
+        semantic_preview_board(scene,before,after).save(out/f'{pi+1:02d}-布局核对.png')
+        slide=prs.slides.add_slide(prs.slide_layouts[6]);factor=min(12/scene['width'],6.75/scene['height']);offsetX=(12-scene['width']*factor)/2;offsetY=(6.75-scene['height']*factor)/2
+        for group in scene['groups']:
+            gx,gy,gs=group['before']
+            for n in group['nodes']:
+                if group.get('nodeBefore'):
+                    pose=semantic.node_state(group,n,'before')
+                    if pose['opacity']<=0:continue
+                    left=Inches(offsetX+pose['x']*factor);top=Inches(offsetY+pose['y']*factor)
+                    if n['kind']=='text':
+                        # Office may measure CJK glyphs wider than the canvas font metrics.
+                        width=min(scene['width']-pose['x'],max(pose['w']*1.15,pose['w']+pose['fontSize']*2))
+                        height=min(scene['height']-pose['y'],pose['fontSize']*1.8)
+                        shape=slide.shapes.add_textbox(left,top,Inches(width*factor),Inches(height*factor));tf=shape.text_frame;tf.margin_left=tf.margin_top=tf.margin_right=tf.margin_bottom=0;tf.word_wrap=False;tf.text=n['text'];p0=tf.paragraphs[0];p0.font.name='Noto Sans CJK SC';p0.font.size=Pt(pose['fontSize']*factor*72);p0.font.bold=pose['fontWeight']>=700;p0.font.color.rgb=RGBColor.from_string(pose['fill'][1:])
+                    elif n['kind']=='image':slide.shapes.add_picture(str(work/n['src']),left,top,Inches(pose['w']*factor),Inches(pose['h']*factor))
+                    elif n['kind']=='rect':
+                        shape=slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,left,top,Inches(pose['w']*factor),Inches(pose['h']*factor));shape.fill.solid();shape.fill.fore_color.rgb=RGBColor.from_string(pose['fill'][1:]);shape.line.fill.background()
+                        if pose.get('stroke'):shape.line.color.rgb=RGBColor.from_string(pose['stroke'][1:]);shape.line.width=Pt(max(.1,pose['lineWidth']*factor*72))
+                    continue
+                left=Inches(offsetX+(gx+n['x']*gs)*factor);top=Inches(offsetY+(gy+n['y']*gs)*factor)
+                if n['kind']=='text':
+                    remaining_w=max(1,group['size'][0]-n['x']);remaining_h=max(1,group['size'][1]-n['y'])
+                    shape=slide.shapes.add_textbox(left,top,Inches(remaining_w*gs*factor),Inches(min(n['fontSize']*1.8,remaining_h)*gs*factor));tf=shape.text_frame;tf.margin_left=tf.margin_top=tf.margin_right=tf.margin_bottom=0;tf.word_wrap=False;tf.text=n['text'];p0=tf.paragraphs[0];p0.font.name='Noto Sans CJK SC';p0.font.size=Pt(n['fontSize']*gs*factor*72);p0.font.bold=n.get('fontWeight',400)>=700;p0.font.color.rgb=RGBColor.from_string(n.get('fill','#222222')[1:])
+                elif n['kind']=='image':slide.shapes.add_picture(str(work/n['src']),left,top,Inches(n['w']*gs*factor),Inches(n['h']*gs*factor))
+                elif n['kind']=='rect':
+                    shape=slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,left,top,Inches(n['w']*gs*factor),Inches(n['h']*gs*factor));shape.fill.solid();shape.fill.fore_color.rgb=RGBColor.from_string(n.get('fill','#ffffff')[1:]);shape.line.fill.background()
+                    if n.get('stroke'):shape.line.color.rgb=RGBColor.from_string(n['stroke'][1:]);shape.line.width=Pt(.5)
+    app.write_json(out/'content-audit.json',dict(boundary='plan-to-scene only; source-slide completeness requires manual visual review',sourceSlideManualReviewRequired=True,pages=proofs))
+    deck=out/'普通排版版.pptx';prs.save(deck);app.write_json(out/'组件方案.json',v);app.write_json(out/'原生场景.json',dict(pages=scenes))
+    job['message']='正在使用Motion Canvas制作原生组件重组'
+    result=semantic.render(app,job,work,scenes,v.get('music',True),out);ensure_engine_current();result['simplePpt']=app.file_url(deck)
+    return result

@@ -59,7 +59,7 @@ templates:
       - 59
       - 805
       - 85
-      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_path: /Users/yuwan/Documents/New project/xhs-ppt-engine/fonts/NotoSansCJKsc-Bold.otf
       font_size: 86
       color: '#152B49'
       award_color: '#A66E24'
@@ -73,14 +73,14 @@ templates:
       - 174
       - 780
       - 54
-      font_path: ../fonts/NotoSansCJKsc-Bold.otf
+      font_path: /Users/yuwan/Documents/New project/xhs-ppt-engine/fonts/NotoSansCJKsc-Bold.otf
       font_size: 38
       color: '#4D5D6D'
       finish: tracked
       tracking: 2.3
       lead_line: 33
     trophy:
-      asset: assets/15-trophy.png
+      asset: /Users/yuwan/Documents/New project/xhs-ppt-engine/templates/assets/15-trophy.png
       enabled: true
       trim_alpha_threshold: 8
       box:

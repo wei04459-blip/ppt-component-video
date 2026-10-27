@@ -1,0 +1,15 @@
+{
+  "engine": "motion-canvas-native",
+  "decodedFrames": 240,
+  "durationSeconds": 8,
+  "fps": 30,
+  "width": 1080,
+  "height": 1440,
+  "aacAudio": true,
+  "missingFramePadding": false,
+  "rendererFingerprint": "fbd2c024a9a1ca7fbe52fa18d4bb0ca86ff925e6d5eaf6a627779418034b95e6",
+  "planSha256": "efee87f9dd2371f2eca233cad3a65783ca00ba8666d213755484036d74b28004",
+  "videoSha256": "1b5ba61eeabfd70c5ca160c6d1f790346ea73dfec4e460932dc3b6dafab00be8",
+  "source": "示例课件.pptx",
+  "plan": "native-reference-plan.json"
+}

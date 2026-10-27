@@ -1,5 +1,5 @@
 """Standalone local PPT video runtime, independent of note/image-tool dependencies."""
-import base64,json,os,re,shutil,signal,subprocess,sys,time,uuid
+import hashlib,base64,json,os,re,shutil,signal,subprocess,sys,time,uuid
 from pathlib import Path
 from PIL import Image
 import pymupdf
@@ -62,13 +62,14 @@ def import_files(job, payload, p):
     files=payload.get('files', [])
     if not files: raise ValueError('请选择 PPT、PDF 或图片')
     dest=p/'imports'/job['id'];dest.mkdir(parents=True)
-    pages=dest/'pages';pages.mkdir(); count=0;objects={}
+    pages=dest/'pages';pages.mkdir(); count=0;objects={};input_records=[]
     for f in files:
         if job['cancel']: raise ValueError('任务已取消')
         name=Path(f['name']).name
         suffix=Path(name).suffix.lower()
         if suffix not in ['.pptx','.ppt','.pdf','.png','.jpg','.jpeg','.webp']: raise ValueError('不支持的文件类型：'+name)
         src=dest/(uuid.uuid4().hex+suffix);src.write_bytes(base64.b64decode(f['data'],validate=True))
+        input_sha=hashlib.sha256(src.read_bytes()).hexdigest();first_page=count+1
         if suffix=='.pptx':
             try: objects.update({str(count+i+1):v for i,v in enumerate(component_video.object_pages(src))})
             except Exception: pass
@@ -90,8 +91,9 @@ def import_files(job, payload, p):
         else:
             count+=1
             with Image.open(src) as im: im.convert('RGB').save(pages/f'page_{count:03d}.png')
+        input_records.append(dict(name=name,sha256=input_sha,firstPage=first_page,lastPage=count))
     write_json(dest/'objects.json',objects)
-    state=read_project(p.name);state['pages']=[file_url(x) for x in sorted(pages.glob('*.png'))];state['pages_dir']=str(pages);state['sources']=[f['name'] for f in files]
+    state=read_project(p.name);state['pages']=[file_url(x) for x in sorted(pages.glob('*.png'))];state['pages_dir']=str(pages);state['sources']=[f['name'] for f in files];state['imported_inputs']=input_records
     state['updated']=time.time();write_json(p/'project.json',state)
     return {'pages':count}
 

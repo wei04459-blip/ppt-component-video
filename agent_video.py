@@ -11,6 +11,7 @@ import subprocess
 import sys
 import uuid
 import zipfile
+from video_delivery import build_video_bundle
 
 ROOT = Path(__file__).resolve().parent
 
@@ -27,6 +28,11 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def renderer_digest(app):
+    import semantic_scene
+    return semantic_scene.renderer_fingerprint(Path(app.component_video.__file__).parent)
+
+
 def doctor():
     modules = ['PIL', 'pymupdf', 'pptx']
     missing = [m for m in modules if importlib.util.find_spec(m) is None]
@@ -41,9 +47,12 @@ def doctor():
     if ffmpeg:
         probe = subprocess.run([ffmpeg, '-hide_banner', '-encoders'], capture_output=True, text=True)
         encoder_ok = probe.returncode == 0 and 'libx264' in probe.stdout and 'aac' in probe.stdout
-    result = dict(python=sys.version.split()[0], missing_modules=missing, libreoffice=office,
+    rapid_spec=importlib.util.find_spec('rapidocr');model_dir=Path(rapid_spec.origin).parent/'models' if rapid_spec else None
+    ocr_ready=bool(model_dir and len(list(model_dir.glob('*.onnx')))>=3 and importlib.util.find_spec('onnxruntime'))
+    result = dict(python=sys.version.split()[0], missing_modules=missing, libreoffice=office, local_ocr=dict(optional=True,ready=ocr_ready,backend='rapidocr_onnxruntime',models='bundled local models',vision_rectangles=sys.platform=='darwin' and bool(shutil.which('swift'))),
                   ffmpeg=ffmpeg, encoders_ok=encoder_ok, engine=(ROOT/'engine').is_dir(),
-                  ready=sys.version_info >= (3, 11) and not missing and bool(office) and encoder_ok and (ROOT/'engine').is_dir())
+                  node=shutil.which('node'),motion_canvas=(ROOT/'video'/'node_modules'/'@motion-canvas'/'core').exists(),
+                  ready=bool(shutil.which('node')) and (ROOT/'video'/'node_modules'/'@motion-canvas'/'core').exists() and sys.version_info >= (3, 11) and not missing and bool(office) and encoder_ok and (ROOT/'engine').is_dir())
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0 if result['ready'] else 2
 
@@ -90,12 +99,23 @@ def prepare(args):
     app.import_files(job(work, 'import'), dict(files=[dict(name=source.name,
         data=base64.b64encode(source.read_bytes()).decode())]), p)
     state = app.read_project(pid)
-    analysis = app.component_video.analyse(app, {'project': pid})
+    analysis = app.component_video.analyse(app, {'project': pid,'ocr':getattr(args,'ocr',False)})
+    asset_dir=work/'assets';asset_dir.mkdir()
+    def extract_assets(value,prefix):
+        if isinstance(value,dict):
+            if value.get('imageData'):
+                path=asset_dir/(prefix+'.png');path.write_bytes(base64.b64decode(value['imageData'],validate=True));value['imageFile']=str(path.relative_to(work))
+            for key,child in value.items():
+                if key!='imageData':extract_assets(child,prefix+'-'+re.sub('[^A-Za-z0-9_-]','_',str(key)))
+        elif isinstance(value,list):
+            for i,child in enumerate(value):extract_assets(child,prefix+'-'+str(i))
+    import re
+    for page in analysis['pages']:extract_assets(page['objects'],'p'+str(page['number']))
     # Relative paths and page numbers keep plans valid after moving the folder.
     catalog = []
     for page in analysis['pages']:
         local = app.DATA/page['source'][len('/files/'):]
-        catalog.append(dict(number=page['number'], image=str(local.relative_to(work)), objects=page['objects']))
+        catalog.append(dict(number=page['number'], image=str(local.relative_to(work)), objects=page['objects'],automation=page.get('automation'),recommended=page.get('recommended',False)))
     manifest = dict(schemaVersion=1, project=pid, input_name=source.name, input_sha256=digest(source),
                     pages=catalog, notice=analysis['notice'])
     write(work/'project.json', manifest)
@@ -113,19 +133,21 @@ def prepare(args):
                 draw.text((x+12, y+5), f"Page {page['number']}", fill='black')
         sheet.save(work/f'contact-{start//12+1:02d}.jpg', quality=90)
     selected = [int(x) for x in args.pages.split(',')] if args.pages else [x['number'] for x in catalog[:3]]
+    if not selected:
+        reasons='；'.join(f"第{x['number']}页："+'；'.join(z.get('message','') for z in (x.get('automation') or {}).get('issues',[])) for x in catalog[:6])
+        raise ValueError('自动分析尚无可制作页面。'+reasons+'；完整分析保留在project.json，可在修复本地识别环境后重新prepare')
     if not 1 <= len(selected) <= 6 or len(set(selected)) != len(selected) or any(n<1 or n>len(catalog) for n in selected):
         raise ValueError('请选择 1–6 个不重复、存在的页号')
-    plan = dict(schemaVersion=1, input_sha256=manifest['input_sha256'], motion='stagger', music=True, pages=[])
+    plan = dict(schemaVersion=1, input_sha256=manifest['input_sha256'], motion='stagger', music=True, workflow='ai-native-v1',pages=[])
     for n in selected:
         objects = catalog[n-1]['objects']
         cols = 1 if len(objects)<=3 else 2 if len(objects)<=12 else 4
         rows = max(1, (len(objects)+cols-1)//cols)
-        components = [dict(id=o['id'], name=o['name'], text=o['text'], target=o['target'],
-            before=[.025+(i%cols)*.95/cols, .025+(i//cols)*.95/rows, .95/cols-.025, .95/rows-.025]) for i,o in enumerate(objects)]
-        plan['pages'].append(dict(number=n, components=components))
+        components = [dict(o, before=o.get('before',[.025+(i%cols)*.95/cols, .025+(i//cols)*.95/rows, .95/cols-.025, .95/rows-.025])) for i,o in enumerate(objects)]
+        plan['pages'].append(dict(number=n, components=components,automation=catalog[n-1].get('automation'),aiReview=dict(sourceRead=False,ordinaryIndependent=False,contentChecked=False,notes='待AI读图、核对内容并设计原生scene')))
     write(work/'plan.json', plan)
     print(json.dumps(dict(work=str(work), plan=str(work/'plan.json'), pages=len(catalog),
-        next='查看 contact-*.jpg 和原页；编辑 plan.json。图片型页面需 Agent 视觉框选，空组件不能直接导出。'), ensure_ascii=False))
+        next='请让AI阅读全部contact和选页原图，核对辅助提取，写入独立普通版node.before与成品scene；填aiReview后preview。用户无需手写。'), ensure_ascii=False))
 
 
 def load(args):
@@ -152,36 +174,45 @@ def load(args):
         if type(number) is not int or not 1<=number<=len(manifest['pages']) or number in numbers:
             raise ValueError('方案页号无效或重复')
         numbers.append(number)
+        if plan.get('workflow')=='ai-native-v1':
+            import ai_video_plan
+            ai_video_plan.validate_page(page)
         components=page.get('components', [])
         if len(components)<2:
             raise ValueError(f'第 {number} 页至少需要两个真实组件；不可用整页替代组件动画')
-        video['pages'].append(dict(number=number, source=state['pages'][number-1], components=components, confirmed=True))
+        video['pages'].append(dict(number=number, source=state['pages'][number-1], components=components, confirmed=True,**({'aiReview':page['aiReview']} if page.get('aiReview') else {}),**({'automation':page['automation']} if page.get('automation') else {}),**({'scene':page['scene']} if page.get('scene') else {}),**({'design':page['design']} if page.get('design') else {})))
     app.component_video.validate(app,p,video)
     return work, manifest, planpath, app, p, video
 
 
 def preview(args):
     work, manifest, planpath, app, p, video = load(args)
+    initial_renderer=renderer_digest(app)
     out=work/'previews'/uuid.uuid4().hex
     out.mkdir(parents=True)
     from PIL import Image, ImageDraw
     files=[]
     for page in video['pages']:
-        source, before, items=app.component_video.prepare(app,p,page)
-        board=Image.new('RGB',(source.width*2,source.height),'white')
-        board.paste(before,(0,0));board.paste(source,(source.width,0))
+        import semantic_scene
+        actual=semantic_scene.actual_preview(app,p,page)
+        before=Image.open(actual['before']).convert('RGB');after=Image.open(actual['after']).convert('RGB')
+        source=app.component_video.source_image(app,p,page['source']).resize(before.size)
+        items=[(item,None,None) for item in page['components']]
+        board=Image.new('RGB',(before.width*2,before.height),'white')
+        board.paste(before,(0,0));board.paste(after,(before.width,0))
         name=out/f"page-{page['number']:03d}-before-after.png"
         board.save(name);files.append(name)
         name=out/f"page-{page['number']:03d}-motion.png"
-        app.component_video.motion_preview(source,before,items,video['motion']).save(name);files.append(name)
+        shutil.copyfile(actual['motion'],name);files.append(name)
         boxes=source.copy();draw=ImageDraw.Draw(boxes)
         for i,(item,_,_) in enumerate(items):
             x,y,w,h=item['target'];rect=(x*source.width,y*source.height,(x+w)*source.width,(y+h)*source.height)
             draw.rectangle(rect,outline='#e60000',width=3);draw.text((rect[0]+3,rect[1]+3),str(i+1),fill='#e60000',stroke_width=1,stroke_fill='white')
         name=out/f"page-{page['number']:03d}-regions.png"
         boxes.save(name);files.append(name)
+    if renderer_digest(app)!=initial_renderer:raise ValueError('预览期间工具已更新，请重新预览')
     review=dict(plan_sha256=digest(planpath),input_sha256=manifest['input_sha256'],
-                renderer_sha256=digest(Path(app.component_video.__file__)),
+                renderer_sha256=renderer_digest(app),
                 files={str(f.relative_to(work)):digest(f) for f in files})
     write(work/'preview-review.json',review)
     print(json.dumps(dict(previews=str(out),review_token=review['plan_sha256'],
@@ -193,7 +224,7 @@ def render(args):
     review=read(work/'preview-review.json')
     if args.reviewed!=digest(planpath) or review['plan_sha256']!=args.reviewed or review['input_sha256']!=manifest['input_sha256']:
         raise ValueError('方案已变或未预览；请重新 preview 并检查')
-    if review.get('renderer_sha256')!=digest(Path(app.component_video.__file__)):
+    if review.get('renderer_sha256')!=renderer_digest(app):
         raise ValueError('视频引擎已更新，请重新 preview 并检查后再导出')
     for path, expected in review['files'].items():
         if digest(work/path)!=expected:raise ValueError('预览已变化，请重新 preview')
@@ -205,16 +236,13 @@ def render(args):
     write(out/'agent-review.json',dict(note=args.review_note,preview=review,
           input_name=manifest['input_name'],input_sha256=manifest['input_sha256']))
     # export_video already decodes the complete MP4 and fails on decode errors.
-    result.update(decode_verified=True, review_note=args.review_note)
+    result.update(decode_verified=True, review_note=args.review_note,delivery_scope='user-files-v1')
     write(out/'result.json',result)
-    write(out/'sha256.json',{str(f.relative_to(out)):digest(f) for f in out.rglob('*') if f.is_file()})
     bundle=out/'视频交付包.zip'
-    with zipfile.ZipFile(bundle,'w',zipfile.ZIP_DEFLATED) as z:
-        for f in out.rglob('*'):
-            if f.is_file() and f!=bundle:z.write(f,f.relative_to(out))
+    build_video_bundle(j,out,bundle)
     state=app.read_project(p.name);state['video']=video;state.setdefault('exports',[]).append(result);app.write_json(p/'project.json',state)
     write(work/'latest-result.json',dict(directory=str(out.relative_to(work)),video='组件重组视频.mp4',bundle=bundle.name,
-          frames=result['frames'],duration=result['duration'],decode_verified=True))
+          frames=result['frames'],duration=result['duration'],decode_verified=True,delivery_scope='user-files-v1'))
     print(json.dumps(dict(output=str(out),video=str(out/'组件重组视频.mp4'),bundle=str(bundle),
         frames=result['frames'],duration=result['duration'],next='观看导出视频与起点/中段/终点预览。技术解码通过不代表视觉验收通过。'),ensure_ascii=False))
 
@@ -227,17 +255,20 @@ def verify(args):
     app.command(job(work,'verify'),[app.ffmpeg(),'-v','error','-i',out/record['video'],'-f','null','-'])
     with zipfile.ZipFile(out/record['bundle']) as z:
         if z.testzip() is not None:raise ValueError('交付 ZIP 损坏')
+        if record.get('delivery_scope')=='user-files-v1':
+            expected_names=set(read(out/'sha256.json'))|{'sha256.json'}
+            if set(z.namelist())!=expected_names:raise ValueError('交付 ZIP 清单不一致')
         for name,expected in read(out/'sha256.json').items():
             if hashlib.sha256(z.read(name)).hexdigest()!=expected:raise ValueError('ZIP 内文件与交付不匹配：'+name)
     print(json.dumps(dict(verified=True,output=str(out),frames=record['frames'],duration=record['duration'],
-        boundary='已校验文件、素材包及全片解码；视觉质量需要 Agent 查看成片。'),ensure_ascii=False))
+        boundary='已校验文件、素材包及全片解码；sourceRef仅校验方案到场景。源课件完整性和视觉质量仍需读图审片。'),ensure_ascii=False))
 
 
 def main():
     parser=argparse.ArgumentParser(description='陌生 Agent 从 PPT 到组件重组视频；先读 AGENT_START.md')
     sub=parser.add_subparsers(dest='command',required=True)
     sub.add_parser('doctor')
-    prep=sub.add_parser('prepare');prep.add_argument('--ppt',required=True);prep.add_argument('--work',required=True);prep.add_argument('--pages')
+    prep=sub.add_parser('prepare');prep.add_argument('--ppt',required=True);prep.add_argument('--work',required=True);prep.add_argument('--pages');prep.add_argument('--ocr',action='store_true',help='可选：本地OCR辅助证据，不自动作为成品')
     for name in ('preview','render'):
         cmd=sub.add_parser(name);cmd.add_argument('--work',required=True);cmd.add_argument('--plan')
         if name=='render':cmd.add_argument('--reviewed',required=True);cmd.add_argument('--review-note',required=True)

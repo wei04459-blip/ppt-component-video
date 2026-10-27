@@ -1,7 +1,12 @@
-<!doctype html><meta charset="utf-8"><style>@font-face{font-family:ToolboxLabel;src:url(/assets/label.ttf);font-weight:700}@font-face{font-family:Toolbox;src:url(/assets/regular.otf)}@font-face{font-family:Toolbox;src:url(/assets/bold.otf);font-weight:700}</style><script type="module">
-import project from './src/project.ts?project';
+<!doctype html><link rel="icon" href="data:,"><meta charset="utf-8"><style>@font-face{font-family:ToolboxLabel;src:url(/assets/label.ttf);font-weight:700}@font-face{font-family:Toolbox;src:url(/assets/regular.otf)}@font-face{font-family:Toolbox;src:url(/assets/bold.otf);font-weight:700}</style><script type="module">
+import config from './src/project.ts';
+import {editorBootstrap,MetaFile} from '@motion-canvas/core';
+// Export mode does not load editor-only plugins; all scene renderers remain native.
+for(const scene of config.scenes)scene.plugins=[];
+const project=await editorBootstrap('project',{core:'3.17.2','2d':'3.17.2'},[],config,new MetaFile('project'),new MetaFile('settings'));
 import {Renderer,Vector2} from '@motion-canvas/core';
 import data from './input.json';
+window.TOOLBOX_RENDER_TOKEN=data.runToken??null;
 window.renderer=new Renderer(project);
-window.renderProject=async()=>{await document.fonts.load('32px Toolbox');await document.fonts.load('700 32px Toolbox');await document.fonts.load('700 80px ToolboxLabel');await document.fonts.ready;let result;window.renderer.onFinished.subscribe(r=>result=r);await window.renderer.render({name:'movie',range:[0,data.pages.length*3.5],fps:30,size:new Vector2(1080,1440),resolutionScale:1,colorSpace:'srgb',background:'#eeeeed',exporter:{name:'@motion-canvas/core/image-sequence',options:{fileType:'image/png',quality:100,groupByScene:false}}});return result};
+window.renderProject=async()=>{await document.fonts.load('32px Toolbox');await document.fonts.load('700 32px Toolbox');await document.fonts.load('700 80px ToolboxLabel');await document.fonts.ready;if(!document.fonts.check('32px Toolbox')||!document.fonts.check('700 32px Toolbox')||!document.fonts.check('700 80px ToolboxLabel'))throw Error('Required video fonts did not load');let result;window.renderer.onFinished.subscribe(r=>result=r);await window.renderer.render({name:'movie',range:[0,data.pages.length*(data.secondsPerPage??3.5)],fps:data.fps??30,size:new Vector2(1080,1440),resolutionScale:1,colorSpace:'srgb',background:'#eeeeed',exporter:{name:'@motion-canvas/core/image-sequence',options:{fileType:'image/png',quality:100,groupByScene:false}}});return result};
 </script>
